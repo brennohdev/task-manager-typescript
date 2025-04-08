@@ -51,4 +51,4 @@ const httpConfig = () => ({
 
 export const HTTPSTATUS = httpConfig(); //So we can acess it in the app.ts file
 
-export type HttpStatusCode = (typeof HTTPSTATUS)[keyof typeof HTTPSTATUS];
+export type HttpStatusCodeType = (typeof HTTPSTATUS)[keyof typeof HTTPSTATUS];

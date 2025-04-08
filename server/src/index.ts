@@ -9,6 +9,8 @@ import connectDataBase from './infrastructure/config/dataBase';
 import { HTTPSTATUS } from './infrastructure/config/http';
 import { errorHandler } from './infrastructure/middlewares/errorHandler';
 import { asyncHandler } from './infrastructure/middlewares/asyncHandler';
+import { BadRequestException } from './shared/utils/appError';
+import { ErrorCodeEnum } from './domain/enums/errorCode';
 
 const app = express();
 const BASE_PATH = config.BASE_PATH // Using the config from app.config.ts
@@ -49,12 +51,13 @@ app.use(cors({
     credentials: true, // Allow cookies to be sent with requests
 }));
 
-app.get('/', asyncHandler((req: Request, res: Response, next: NextFunction) => {
-    throw new Error('Test error'); // Test error to check if the error handler is working
+app.get('/', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    throw new BadRequestException("This is a bad request", ErrorCodeEnum.AUTH_INVALID_TOKEN);
     res.status(HTTPSTATUS.OK).json({
         message: "Hello!!"
-    });
-}));
+        });
+    })
+);
 
 app.use(errorHandler)
 
