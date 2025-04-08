@@ -12,3 +12,5 @@ data.txt
 
 build/
 dist/
+
+testEnv.ts
