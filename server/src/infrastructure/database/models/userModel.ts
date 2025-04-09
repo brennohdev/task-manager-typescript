@@ -13,13 +13,13 @@ export interface UserDocument extends Document {
     updatedAt: Date;
     currentWorkspace: mongoose.Types.ObjectId | null;
     comparePassword(value: string): Promise<boolean>;
-    omitPassowrd(): Omit<UserDocument, 'password'>;
+    omitPassword(): Omit<UserDocument, 'password'>;
 }
 
 const userSchema = new Schema<UserDocument>({
     name: {
         type: String,
-        required: false,
+        required: true,
         trim: true,
     },
     email: {
@@ -31,7 +31,7 @@ const userSchema = new Schema<UserDocument>({
     },
     password: {
         type: String,
-        select: true,
+        select: false,
     },
     profilePicture: {
         type: String,
@@ -53,11 +53,25 @@ const userSchema = new Schema<UserDocument>({
     timestamps: true,
 });
 
-userSchema.pre('save', async function () {
-    if (this.isModified('password') && this.password) {
-        const hashedPassword = await hashPassword(this.password);
-        if (typeof hashedPassword === 'string') {
-            this.password = hashedPassword;
+userSchema.pre("save", async function (next) {
+    if (this.isModified("password")) {
+        if (this.password) {
+            this.password = await hashPassword(this.password);
         }
     }
+    next();
 });
+
+userSchema.methods.omitPassword = function (): Omit<UserDocument, 'password'> {
+    const userObject = this.toObject();
+    delete userObject.password;
+    return userObject;
+};
+
+userSchema.methods.comparePassword = async function (password: string) {
+    return await comparePassword(password, this.password);
+};
+
+const UserModel = mongoose.model<UserDocument>('User', userSchema);
+export default UserModel;
+
