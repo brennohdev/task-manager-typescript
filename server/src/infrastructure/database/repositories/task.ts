@@ -1,11 +1,11 @@
-import { ITaskRepository } from "../../../domain/repositories/taskContract";
+import { ITaskRepository } from "../../../domain/repositories/task";
 import { Task } from "../../../domain/entities/Task";
-import TaskModel from "../models/taskModel";
-import { Types } from "mongoose";
+import TaskModel, { TaskDocument } from "../models/task";
+import { Types, ClientSession } from "mongoose";
 
 export class TaskRepository implements ITaskRepository {
-    async create(task: Omit<Task, 'id'>): Promise<Task> {
-        const doc = await TaskModel.create({
+    async create(task: Omit<Task, 'id'>, session?: ClientSession): Promise<Task> {
+        const doc = await TaskModel.create([{
             taskCode: task.taskCode,
             tittle: task.tittle,
             description: task.description,
@@ -16,9 +16,9 @@ export class TaskRepository implements ITaskRepository {
             assignedTo: task.assignedTo,
             createdBy: task.createdBy,
             dueDate: task.dueDate,
-        });
+        }], { session });
 
-        return this.toEntity(doc);
+        return this.toEntity(doc[0]);
     }
 
     async findById(id: Types.ObjectId): Promise<Task | null> {
@@ -28,15 +28,15 @@ export class TaskRepository implements ITaskRepository {
 
     async findByProject(projectId: Types.ObjectId): Promise<Task[]> {
         const docs = await TaskModel.find({ project: projectId });
-        return docs.map(this.toEntity);
+        return docs.map((doc) => this.toEntity(doc));
     }
 
     async findByWorkspace(workspaceId: Types.ObjectId): Promise<Task[]> {
         const docs = await TaskModel.find({ workspace: workspaceId });
-        return docs.map(this.toEntity);
+        return docs.map((doc) => this.toEntity(doc));
     }
 
-    async update(task: Task): Promise<void> {
+    async update(task: Task, session?: ClientSession): Promise<void> {
         await TaskModel.findByIdAndUpdate(task.id, {
             taskCode: task.taskCode,
             tittle: task.tittle,
@@ -45,14 +45,14 @@ export class TaskRepository implements ITaskRepository {
             priority: task.priority,
             assignedTo: task.assignedTo,
             dueDate: task.dueDate,
-        });
+        }, { session });
     }
 
     async delete(id: Types.ObjectId): Promise<void> {
         await TaskModel.findByIdAndDelete(id);
     }
 
-    private toEntity(doc: any): Task {
+    private toEntity(doc: TaskDocument): Task {
         return new Task(
             doc.taskCode,
             doc.tittle,
@@ -66,7 +66,7 @@ export class TaskRepository implements ITaskRepository {
             doc.dueDate,
             doc.createdAt,
             doc.updatedAt,
-            doc._id
+            doc.id,
         );
     }
 }

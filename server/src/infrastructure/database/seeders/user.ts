@@ -1,10 +1,10 @@
-import "dotenv/config";
+// src/database/seeders/userSeed.ts
+
 import mongoose from "mongoose";
 import connectDataBase from "../../config/dataBase";
-import UserModel from "../models/userModel";
+import UserModel from "../models/user";
 
-// Função principal para rodar a seed
-const seedUsers = async () => {
+export const seedUsers = async () => {
     console.log("🌱 Iniciando seed de usuários...");
 
     try {
@@ -13,18 +13,16 @@ const seedUsers = async () => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
-    // Limpa os usuários existentes
     console.log("🧹 Limpando usuários existentes...");
     await UserModel.deleteMany({}, { session });
 
-    // Lista de usuários de exemplo
     const users = [
         {
         name: "Brenno H.",
         email: "brenno@example.com",
         password: "senha123",
         profilePicture: null,
-        currentWorkspace: null, // Será atribuído após criarmos workspaces
+        currentWorkspace: null,
         isActive: true,
         lastLogin: null,
         },
@@ -39,7 +37,6 @@ const seedUsers = async () => {
         },
     ];
 
-    // Salva os usuários
     for (const user of users) {
         const createdUser = new UserModel(user);
         await createdUser.save({ session });
@@ -52,9 +49,8 @@ const seedUsers = async () => {
     console.log("✅ Seed de usuários concluída com sucesso.");
     } catch (error) {
     console.error("❌ Erro ao rodar seed de usuários:", error);
+    throw error;
     } finally {
     await mongoose.disconnect();
     }
 };
-
-seedUsers();

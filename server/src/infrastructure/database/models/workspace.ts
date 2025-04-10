@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { generateInviteCode } from '../../../shared/utils/generateInviteCode';
 
 export interface WorkspaceDocument extends Document {
+    _id: mongoose.Types.ObjectId;
     name: string;
     description: string;
     owner: mongoose.Types.ObjectId;

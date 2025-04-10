@@ -12,6 +12,10 @@ import { asyncHandler } from './infrastructure/middlewares/asyncHandler';
 import { BadRequestException } from './shared/utils/appError';
 import { ErrorCodeEnum } from './domain/enums/errorCode';
 
+import "./infrastructure/config/passport"
+import passport from 'passport';
+import authRoute from './interfaces/routes/auth';
+
 const app = express();
 const BASE_PATH = config.BASE_PATH // Using the config from app.config.ts
 
@@ -46,6 +50,9 @@ app.use(
     })
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(cors({
     origin: config.FRONTEND_ORIGIN,
     credentials: true, // Allow cookies to be sent with requests
@@ -59,12 +66,15 @@ app.get('/', asyncHandler(async (req: Request, res: Response, next: NextFunction
     })
 );
 
+app.use(`${BASE_PATH}/auth`, authRoute)
+
 app.use(errorHandler)
 
 app.listen(config.PORT, async () => {
     console.log(`Server is running on port ${config.PORT} in ${config.NODE_ENV}`);
     await connectDataBase();
 });
+
 
 
 

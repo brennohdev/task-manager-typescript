@@ -5,4 +5,4 @@ export const ProviderEnum = {
     FACEBOOK: "FACEBOOK",
 } as const;
 
-export type ProviderEnumType = typeof ProviderEnum[keyof typeof ProviderEnum];
+export type ProviderEnumType =keyof typeof ProviderEnum;

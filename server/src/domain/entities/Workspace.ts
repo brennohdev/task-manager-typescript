@@ -5,11 +5,11 @@ export class Workspace {
     constructor(
         public name: string,
         public description: string | null,
-        public owner: Types.ObjectId, // userId como string
+        public owner: string, // userId como string
         public inviteCode: string,
         public createdAt?: Date,
         public updatedAt?: Date,
-        public id?: Types.ObjectId // workspaceId como string,
+        public id?: string // workspaceId como string,
     ) {}
 
     resetInviteCode() {

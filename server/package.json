@@ -7,7 +7,9 @@
     "build": "tsc && cp /package.json ./dist",
     "start": "node dist/index.ts",
     "test": "jest --detectOpenHandles --forceExit",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "seed:users": "ts-node src/database/seeders/userSeed.ts",
+    "seed:workspaces": "ts-node src/database/seeders/workspaceSeed.ts"
   },
   "keywords": [],
   "author": "",

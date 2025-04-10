@@ -1,4 +1,4 @@
-import { Project } from "../../domain/entities/Project";
+import { Project } from "../entities/Project";
 import { Types } from "mongoose";
 
 export interface IProjectRepository {

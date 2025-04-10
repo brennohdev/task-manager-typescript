@@ -3,6 +3,7 @@ import { TaskPriorityEnum, TaskPriorityEnumType, TaskStatusEnum, TaskStatusEnumT
 import { generateTaskCode } from '../../../shared/utils/generateInviteCode';
 
 export interface TaskDocument extends Document {
+    updatedAt: Date | undefined;
     taskCode: string,
     tittle: string,
     description: string | null;
@@ -26,7 +27,7 @@ const taskSchema = new Schema<TaskDocument>({
     tittle: {
         type: String,
         unique: true,
-        default: generateTaskCode,
+        trim: true,
     },
     description: {
         type: String,
