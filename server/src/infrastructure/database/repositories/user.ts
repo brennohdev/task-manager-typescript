@@ -1,8 +1,25 @@
-import mongoose, { ClientSession, Types } from "mongoose";
-import { IUserRepository } from "../../../domain/repositories/user";
-import { User } from "../../../domain/entities/User";
-import UserModel from "../models/user";
-import { hashPassword } from "../../../shared/utils/bcrypt";
+import mongoose, { ClientSession } from 'mongoose';
+import { IUserRepository } from '../../../domain/repositories/user';
+import { User } from '../../../domain/entities/User';
+import UserModel, { UserDocument } from '../models/user';
+import { hashPassword } from '../../../shared/utils/bcrypt';
+
+type CreateUserDTO = {
+  name: string;
+  email: string;
+  profilePicture: string | null;
+  id?: string;
+  isActive?: boolean;
+  lastLogin?: Date | null;
+  currentWorkspace?: string | null;
+};
+
+type CreateUserWithPasswordDTO = {
+  name: string;
+  email: string;
+  password: string;
+  profilePicture?: string | null;
+};
 
 export class UserRepository implements IUserRepository {
   private mapToEntity(userDoc: any): User {
@@ -12,8 +29,8 @@ export class UserRepository implements IUserRepository {
       userDoc.profilePicture ?? null,
       userDoc.isActive,
       userDoc.lastLogin,
-      userDoc.currentWorkspace ? userDoc.currentWorkspace.toString() : null,
-      userDoc._id.toString(),
+      userDoc.currentWorkspace ? userDoc.currentWorkspace.toString() : undefined,
+      userDoc._id?.toString(),
       userDoc.createdAt,
       userDoc.updatedAt,
     );
@@ -37,28 +54,48 @@ export class UserRepository implements IUserRepository {
     return user ? this.mapToEntity(user) : undefined;
   }
 
-  async create(userData: Omit<User, "id">, session?: ClientSession): Promise<User> {
-    const data = this.mapToPersistence(userData);
+  async create(userData: CreateUserDTO, session?: ClientSession): Promise<User> {
+    const data = {
+      name: userData.name,
+      email: userData.email,
+      profilePicture: userData.profilePicture,
+      isActive: userData.isActive ?? true,
+      lastLogin: userData.lastLogin ?? null,
+      currentWorkspace: userData.currentWorkspace
+        ? new mongoose.Types.ObjectId(userData.currentWorkspace)
+        : null,
+    };
+
     const [createdUser] = await UserModel.create([data], { session });
     return this.mapToEntity(createdUser);
   }
 
-  async createWithPassword(data: {
-    name: string;
-    email: string;
-    password: string;
-    profilePicture?: string | null;
-  }, session?: ClientSession): Promise<User> {
+  async createWithPassword(
+    data: CreateUserWithPasswordDTO,
+    session?: ClientSession,
+  ): Promise<User> {
     const hashedPassword = await hashPassword(data.password);
 
-    const [doc] = await UserModel.create([{
+    const created = new UserModel({
       name: data.name,
       email: data.email,
       password: hashedPassword,
       profilePicture: data.profilePicture ?? null,
-    }], { session });
+    });
 
-    return this.mapToEntity(doc);
+    await created.save({ session });
+
+    return this.mapToEntity(created);
+  }
+
+  async verifyPassword(email: string, password: string): Promise<boolean> {
+    const user = await UserModel.findOne({ email }).select('+password');
+    if (!user) return false;
+    return user.comparePassword(password);
+  }
+
+  async findUserWithPasswordByEmail(email: string): Promise<UserDocument | null> {
+    return await UserModel.findOne({ email }).select('+password');
   }
 
   async findById(id: string): Promise<User | null> {
@@ -77,21 +114,44 @@ export class UserRepository implements IUserRepository {
     await UserModel.findByIdAndUpdate(id, { lastLogin: date });
   }
 
+  async findByIdWithWorkspace(id: string): Promise<User | null> {
+    const userDoc = await UserModel.findById(id).populate('currentWorkspace').select('-password');
+
+    if (!userDoc) return null;
+
+    return this.mapToEntity(userDoc);
+  }
+
   async update(id: string, user: User, session?: ClientSession): Promise<User> {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("Invalid user ID");
+      throw new Error('Invalid user ID');
     }
 
-    const updated = await UserModel.findByIdAndUpdate(
-      id,
-      this.mapToPersistence(user),
-      { new: true, session }
-    );
+    const updated = await UserModel.findByIdAndUpdate(id, this.mapToPersistence(user), {
+      new: true,
+      session,
+    });
 
     if (!updated) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     return this.mapToEntity(updated);
+  }
+
+  async updateCurrentWorkspace(
+    userId: string,
+    workspaceId: string | null,
+    session?: ClientSession,
+  ): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new Error('Invalid user ID');
+    }
+  
+    const update: Record<string, any> = {
+      currentWorkspace: workspaceId ? new mongoose.Types.ObjectId(workspaceId) : null,
+    };
+  
+    await UserModel.findByIdAndUpdate(userId, update, { session });
   }
 }

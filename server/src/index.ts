@@ -12,17 +12,20 @@ import { asyncHandler } from './infrastructure/middlewares/asyncHandler';
 import { BadRequestException } from './shared/utils/appError';
 import { ErrorCodeEnum } from './domain/enums/errorCode';
 
-import "./infrastructure/config/passport"
+import './infrastructure/config/passport';
 import passport from 'passport';
 import authRoute from './interfaces/routes/auth';
+import userRoute from './interfaces/routes/user';
+import isAuthenticated from './infrastructure/middlewares/Authenticate';
+import workspaceRoute from './interfaces/routes/workspace';
 
 const app = express();
-const BASE_PATH = config.BASE_PATH // Using the config from app.config.ts
+const BASE_PATH = config.BASE_PATH; // Using the config from app.config.ts
 
 app.use(express.json());
 
 // Allow to access the body of the request form
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 /* Like: <form method="POST" action="/login">
     <input name="email" />
     <input name="password" />
@@ -40,42 +43,44 @@ req.body = {
 */
 
 app.use(
-    session({
-        name: 'session',
-        keys: [config.SESSION_SECRET],
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        secure: config.NODE_ENV === 'production',
-        httpOnly: true,
-        sameSite: 'lax'
-    })
+  session({
+    name: 'session',
+    keys: [config.SESSION_SECRET],
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: config.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
+  }),
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors({
+app.use(
+  cors({
     origin: config.FRONTEND_ORIGIN,
     credentials: true, // Allow cookies to be sent with requests
-}));
-
-app.get('/', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    throw new BadRequestException("This is a bad request", ErrorCodeEnum.AUTH_INVALID_TOKEN);
-    res.status(HTTPSTATUS.OK).json({
-        message: "Hello!!"
-        });
-    })
+  }),
 );
 
-app.use(`${BASE_PATH}/auth`, authRoute)
+app.get(
+  '/',
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    throw new BadRequestException('This is a bad request', ErrorCodeEnum.AUTH_INVALID_TOKEN);
+    res.status(HTTPSTATUS.OK).json({
+      message: 'Hello!!',
+    });
+  }),
+);
 
-app.use(errorHandler)
+app.use(`${BASE_PATH}/auth`, authRoute);
+app.use(`${BASE_PATH}/user`, isAuthenticated, userRoute);
+app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoute);
+
+app.use(errorHandler);
 
 app.listen(config.PORT, async () => {
-    console.log(`Server is running on port ${config.PORT} in ${config.NODE_ENV}`);
-    await connectDataBase();
+  console.log(`Server is running on port ${config.PORT} in ${config.NODE_ENV}`);
+  await connectDataBase();
 });
-
-
-
-
 

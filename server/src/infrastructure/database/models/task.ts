@@ -1,77 +1,85 @@
-import mongoose, { Document, mongo, Schema} from 'mongoose';
-import { TaskPriorityEnum, TaskPriorityEnumType, TaskStatusEnum, TaskStatusEnumType } from '../../../domain/enums/taskStatus';
+import mongoose, { Document, mongo, Schema } from 'mongoose';
+import {
+  TaskPriorityEnum,
+  TaskPriorityEnumType,
+  TaskStatusEnum,
+  TaskStatusEnumType,
+} from '../../../domain/enums/taskStatus';
 import { generateTaskCode } from '../../../shared/utils/generateInviteCode';
 
 export interface TaskDocument extends Document {
-    updatedAt: Date | undefined;
-    taskCode: string,
-    tittle: string,
-    description: string | null;
-    project: mongoose.Types.ObjectId;
-    workspace: mongoose.Types.ObjectId;
-    status: TaskStatusEnumType,
-    priority:TaskPriorityEnumType,
-    assignedTo: mongoose.Types.ObjectId | null;
-    createdBy: mongoose.Types.ObjectId;
-    dueDate: Date | null;
-        createdAt: Date;
-    updateAt: Date;
+  updatedAt: Date | undefined;
+  taskCode: string;
+  tittle: string;
+  description: string | null;
+  project: mongoose.Types.ObjectId;
+  workspace: mongoose.Types.ObjectId;
+  status: TaskStatusEnumType;
+  priority: TaskPriorityEnumType;
+  assignedTo: mongoose.Types.ObjectId | null;
+  createdBy: mongoose.Types.ObjectId;
+  dueDate: Date | null;
+  createdAt: Date;
+  updateAt: Date;
 }
 
-const taskSchema = new Schema<TaskDocument>({
+const taskSchema = new Schema<TaskDocument>(
+  {
     taskCode: {
-        type: String,
-        unique: true,
-        default: generateTaskCode,
+      type: String,
+      unique: true,
+      default: generateTaskCode,
     },
     tittle: {
-        type: String,
-        unique: true,
-        trim: true,
+      type: String,
+      unique: true,
+      trim: true,
     },
     description: {
-        type: String,
-        default: null,
-        trim: true,
+      type: String,
+      default: null,
+      trim: true,
     },
     project: {
-        type: Schema.Types.ObjectId,
-        ref: "Project",
-        required: true,
+      type: Schema.Types.ObjectId,
+      ref: 'Project',
+      required: true,
     },
     workspace: {
-        type: Schema.Types.ObjectId,
-        ref: "Workspace",
-        required: true,
+      type: Schema.Types.ObjectId,
+      ref: 'Workspace',
+      required: true,
     },
     status: {
-        type: String,
-        enum: Object.values(TaskStatusEnum),
-        default: TaskStatusEnum.TODO,
+      type: String,
+      enum: Object.values(TaskStatusEnum),
+      default: TaskStatusEnum.TODO,
     },
     priority: {
-        type: String,
-        enum: Object.values(TaskPriorityEnum),
-        default: TaskPriorityEnum.MEDIUM
+      type: String,
+      enum: Object.values(TaskPriorityEnum),
+      default: TaskPriorityEnum.MEDIUM,
     },
     assignedTo: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        default: null,
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
     },
     createdBy: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
     dueDate: {
-        type: Date,
-        default: null,
+      type: Date,
+      default: null,
     },
-}, {
+  },
+  {
     timestamps: true,
-})
+  },
+);
 
-const TaskModel = mongoose.model<TaskDocument>("Task", taskSchema);
+const TaskModel = mongoose.model<TaskDocument>('Task', taskSchema);
 
 export default TaskModel;

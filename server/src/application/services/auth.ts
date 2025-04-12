@@ -1,27 +1,24 @@
-import mongoose, { Types } from "mongoose";
-import { User } from "../../domain/entities/User";
-import { Account } from "../../domain/entities/Account";
-import { Workspace } from "../../domain/entities/Workspace";
-import { Member } from "../../domain/entities/Member";
-import { ProviderEnum } from "../../domain/enums/accountProvider";
+// services/authService.ts
+import mongoose from 'mongoose';
+import { ProviderEnum } from '../../domain/enums/accountProvider';
 
-import { AccountRepository } from "../../infrastructure/database/repositories/account";
-import { UserRepository } from "../../infrastructure/database/repositories/user";
-import { WorkspaceRepository } from "../../infrastructure/database/repositories/workspace";
-import { MemberRepository } from "../../infrastructure/database/repositories/member";
+import { AccountRepository } from '../../infrastructure/database/repositories/account';
+import { UserRepository } from '../../infrastructure/database/repositories/user';
+import { WorkspaceRepository } from '../../infrastructure/database/repositories/workspace';
+import { MemberRepository } from '../../infrastructure/database/repositories/member';
 
-import { generateInviteCode } from "../../shared/utils/generateInviteCode";
-import { BadRequestException } from "../../shared/utils/appError";
+import { createUserWithPassword } from '../usecases/user/createUserWithPassword';
+import { createUserProvider } from '../usecases/user/createUserFromProvider';
+import { registerAccount } from '../usecases/account/registerAccount';
+import {  createWorkspaceForUserSignUp } from '../usecases/workspace/createWorkspaceForUserSignup';
+import { updateUserCurrentWorkspace } from '../usecases/user/updateUserCurrentWorkspace';
+import { addMemberToWorkspace } from '../usecases/member/addMemberToWorkspace';
+import { verifyUserCredentials } from '../usecases/user/verifyUserCredentials';
+import { User } from '../../domain/entities/User';
 
-export const processUserAccountFlow = async (data: {
-  provider: keyof typeof ProviderEnum;
-  displayName: string;
-  providerId: string;
-  picture?: string;
-  email?: string;
-}) => {
-  const { providerId, provider, displayName, email, picture } = data;
+export const signUpUser = async (body: { email: string; name: string; password: string }) => {
   const session = await mongoose.startSession();
+  const { email, name, password } = body;
 
   try {
     session.startTransaction();
@@ -31,36 +28,24 @@ export const processUserAccountFlow = async (data: {
     const workspaceRepository = new WorkspaceRepository();
     const memberRepository = new MemberRepository();
 
-    let user = await userRepository.findByEmail(email || "");
+    const user = await createUserWithPassword({ name, email, password }, userRepository, session);
+    await registerAccount(
+      ProviderEnum.EMAIL,
+      email,
+      user.id!,
+      accountRepository,
+      undefined,
+      session,
+    );
 
-    if (!user) {
-      user = new User(displayName, email || "", picture || null);
-      user = await userRepository.create(user, session);
-
-      const workspace = new Workspace(
-        "My Workspace",
-        `Workspace created for ${user.name}`,
-        user.id!,
-        generateInviteCode()
-      );
-      const createdWorkspace = await workspaceRepository.create(workspace, session);
-
-      user.currentWorkspace = createdWorkspace.id!;
-      await userRepository.update(user.id!, user, session);
-
-      const member = new Member(
-        new Types.ObjectId(user.id!),
-        new Types.ObjectId(createdWorkspace.id!),
-        new Date()
-      );
-      await memberRepository.add(member, session);
-    }
-
-    const existingAccount = await accountRepository.findByProviderId(providerId);
-    if (!existingAccount) {
-      const account = new Account(provider, providerId, user.id!, picture);
-      await accountRepository.create(account, session);
-    }
+    const workspace = await createWorkspaceForUserSignUp(
+      user.id!,
+      user.name,
+      workspaceRepository,
+      session,
+    );
+    await updateUserCurrentWorkspace(user, workspace.id!, userRepository, session);
+    await addMemberToWorkspace(user.id!, workspace.id!, memberRepository, session);
 
     await session.commitTransaction();
     session.endSession();
@@ -73,13 +58,15 @@ export const processUserAccountFlow = async (data: {
   }
 };
 
-export const signUpUser = async (body: {
-  email: string,
-  name: string,
-  password: string,
+export const processUserAccountFlow = async (data: {
+  provider: keyof typeof ProviderEnum;
+  displayName: string;
+  providerId: string;
+  picture?: string;
+  email?: string;
 }) => {
-  const { email, name, password } = body;
   const session = await mongoose.startSession();
+  const { provider, providerId, displayName, email = '', picture = null } = data;
 
   try {
     session.startTransaction();
@@ -89,41 +76,21 @@ export const signUpUser = async (body: {
     const workspaceRepository = new WorkspaceRepository();
     const memberRepository = new MemberRepository();
 
-    const existingUser = await userRepository.findByEmail(email);
-    if (existingUser) {
-      throw new BadRequestException("Email already exists");
+    let user = await userRepository.findByEmail(email);
+
+    if (!user) {
+      user = await createUserProvider(displayName, email, picture, userRepository, session);
+      const workspace = await createWorkspaceForUserSignUp(
+        user.id!,
+        user.name,
+        workspaceRepository,
+        session,
+      );
+      await updateUserCurrentWorkspace(user, workspace.id!, userRepository, session);
+      await addMemberToWorkspace(user.id!, workspace.id!, memberRepository, session);
     }
 
-    const user = await userRepository.createWithPassword({
-      name,
-      email,
-      password,
-    }, session);
-
-    const account = new Account(
-      ProviderEnum.EMAIL,
-      email,
-      user.id!,
-    );
-    await accountRepository.create(account, session);
-
-    const workspace = new Workspace(
-      "My Workspace",
-      `Workspace created for ${user.name}`,
-      user.id!,
-      generateInviteCode()
-    );
-    const createdWorkspace = await workspaceRepository.create(workspace, session);
-
-    user.currentWorkspace = createdWorkspace.id!;
-    await userRepository.update(user.id!, user, session);
-
-    const member = new Member(
-      new Types.ObjectId(user.id!),
-      new Types.ObjectId(createdWorkspace.id!),
-      new Date()
-    );
-    await memberRepository.add(member, session);
+    await registerAccount(provider, providerId, user.id!, accountRepository, picture, session);
 
     await session.commitTransaction();
     session.endSession();
@@ -134,4 +101,9 @@ export const signUpUser = async (body: {
     session.endSession();
     throw error;
   }
+};
+
+export const verifyService = async (input: { email: string; password: string }): Promise<User> => {
+  const userRepository = new UserRepository();
+  return verifyUserCredentials(input, userRepository);
 };

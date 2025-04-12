@@ -1,7 +1,7 @@
-import { IWorkspaceRepository } from "../../../domain/repositories/workspace";
-import { Workspace } from "../../../domain/entities/Workspace";
-import WorkspaceModel from "../models/workspace";
-import { ClientSession, Types } from "mongoose";
+import { IWorkspaceRepository } from '../../../domain/repositories/workspace';
+import { Workspace } from '../../../domain/entities/Workspace';
+import WorkspaceModel from '../models/workspace';
+import { ClientSession, Types } from 'mongoose';
 
 export class WorkspaceRepository implements IWorkspaceRepository {
   private mapToEntity(doc: any): Workspace {
@@ -26,11 +26,15 @@ export class WorkspaceRepository implements IWorkspaceRepository {
   }
 
   async create(workspace: Workspace, session?: ClientSession): Promise<Workspace> {
-    const [doc] = await WorkspaceModel.create(
-      [this.mapToPersistence(workspace)],
-      { session }
-    );
+    const [doc] = await WorkspaceModel.create([this.mapToPersistence(workspace)], { session });
     return this.mapToEntity(doc);
+  }
+
+  async findById(id: string): Promise<Workspace | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
+    const doc = await WorkspaceModel.findById(new Types.ObjectId(id));
+    return doc ? this.mapToEntity(doc) : null;
   }
 
   async findByInviteCode(code: string): Promise<Workspace | null> {
@@ -53,8 +57,14 @@ export class WorkspaceRepository implements IWorkspaceRepository {
 
   async findByOwnerId(ownerId: string): Promise<Workspace[]> {
     if (!Types.ObjectId.isValid(ownerId)) return [];
-  
+
     const docs = await WorkspaceModel.find({ owner: new Types.ObjectId(ownerId) });
     return docs.map((doc) => this.mapToEntity(doc));
-    }
-};
+  }
+
+  async findManyByIds(ids: string[]): Promise<Workspace[]> {
+    const objectIds = ids.map((id) => new Types.ObjectId(id));
+    const docs = await WorkspaceModel.find({ _id: { $in: objectIds } });
+    return docs.map((doc) => this.mapToEntity(doc));
+  }
+}

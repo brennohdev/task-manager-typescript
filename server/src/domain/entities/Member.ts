@@ -1,10 +1,9 @@
-import { Types } from "mongoose";
 
 export class Member {
-    constructor(
-    public userId: Types.ObjectId,
-    public workspaceId: Types.ObjectId,
+  constructor(
+    public userId: string,
+    public workspaceId: string,
     public joinedAt: Date,
-    public id?: Types.ObjectId
-    ) {}
+    public id?: string,
+  ) {}
 }
