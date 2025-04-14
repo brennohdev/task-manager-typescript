@@ -40,7 +40,7 @@ export class MemberRepository implements IMemberRepository {
 
   async findManyByWorkspaceId(workspaceId: string): Promise<Member[]> {
     const members = await MemberModel.find({ workspaceId })
-      .populate('userId', 'name email profilePicture')  // Popula os dados do usuário
+      .populate('userId', 'name email profilePicture')  
       .exec();
   
     return members.map((doc) => this.toEntity(doc));
@@ -49,7 +49,7 @@ export class MemberRepository implements IMemberRepository {
   async findManyWithUserByWorkspaceId(workspaceId: string) {
     return MemberModel
       .find({ workspaceId })
-      .populate("userId", "name email profilePicture") // sem password
+      .populate("userId", "name email profilePicture") 
       .lean();
   }
 

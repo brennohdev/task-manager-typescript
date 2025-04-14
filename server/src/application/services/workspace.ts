@@ -32,7 +32,6 @@ export const createWorkspaceService = async (
 
   const workspaceRepository = new WorkspaceRepository();
   const userRepository = new UserRepository();
-  const memberRepository = new MemberRepository();
 
   try {
     const user = await userRepository.findById(userId);

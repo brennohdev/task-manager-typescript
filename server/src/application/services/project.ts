@@ -1,59 +1,123 @@
-/* 
-    Create a new Project
-1. Create a project linked to a workspace
-2. Assign the creator as createdBy
+import mongoose from 'mongoose';
+import { ProjectRepository } from '../../infrastructure/database/repositories/project';
+import { createProject } from '../usecases/project/createProject';
+import { getAccessLevelInWorkspace } from '../usecases/member/checkUserInWorkspace';
+import { getPaginatedProjects } from '../usecases/project/getPaginatedProjects';
+import { getProjectById } from '../usecases/project/getProjectById';
+import { getProjectAnalytics } from '../usecases/project/getProjectAnalytics';
+import { updateProject } from '../usecases/project/updateProject';
+import { deleteProject } from '../usecases/project/deleteProject';
 
-    Business rules
-Only users in the workspace can create a project
-The project must belong to a valid workspace
-*/
+export const createProjectService = async (
+  userId: string,
+  body: {
+    name: string;
+    description?: string;
+    emoji: string;
+    workspaceId: string;
+  },
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-/* 
-    List all Projects from a Workspace
-1. Return paginated list of all projects in a workspace
-2. Populate creator’s data (name, profile picture)
-3. Sort projects by creation date (newest first)
+  const projectRepository = new ProjectRepository();
 
-    Business rules
-Only members of the workspace can access project list
-*/
+  try {
+    const workspaceObjectId = new mongoose.Types.ObjectId(body.workspaceId);
+    const userObjectId = new mongoose.Types.ObjectId(userId);
 
-/* 
-    Get a Project by ID
-1. Return details of a specific project by ID
-2. Ensure the project belongs to the workspace
+    const project = await createProject(
+      {
+        name: body.name,
+        description: body.description,
+        emoji: body.emoji,
+        workspaceId: workspaceObjectId,
+        userId: userObjectId,
+      },
+      projectRepository,
+      session,
+    );
 
-    Business rules
-Only members of the workspace can access project data
-Throw error if project does not exist or belongs to another workspace
-*/
+    await session.commitTransaction();
+    return project;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
 
-/* 
-    Get Project Analytics (Stats)
-1. Return stats from tasks in the project: total, completed, overdue
-2. Use MongoDB aggregation pipeline for performance
+export const getProjectsInWorkspaceService = async (
+  userId: string,
+  workspaceId: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
+  const projectRepository = new ProjectRepository();
 
-    Business rules
-Project must belong to the workspace
-Only members can view analytics
-*/
+  await getAccessLevelInWorkspace(userId, workspaceId);
 
-/* 
-    Update a Project
-1. Update project details (name, emoji, description)
+  return await getPaginatedProjects(
+    new mongoose.Types.ObjectId(workspaceId),
+    page,
+    limit,
+    projectRepository,
+  );
+};
 
-    Business rules
-Only members of the workspace can update project data
-Project must exist and belong to the workspace
-*/
+export const getProjectByIdInWorkspaceService = async (
+  userId: string,
+  workspaceId: string,
+  projectId: string,
+) => {
+  const project = await getProjectById(userId, workspaceId, projectId);
 
-/* 
-    Delete a Project
-1. Delete a project from a workspace
-2. Delete all tasks associated with the project
+  return project;
+};
 
-    Business rules
-Only the creator can delete a project (if enforced)
-Project must exist and belong to the workspace
-Delete operation must clean up associated tasks
-*/
+export const getProjectAnalyticsService = async (
+  userId: string,
+  workspaceId: string,
+  projectId: string,
+) => {
+  const analytics = await getProjectAnalytics(userId, workspaceId, projectId);
+  return analytics;
+};
+
+type UpdateProjectData = {
+  name?: string;
+  emoji?: string;
+  description?: string;
+};
+
+export const updateProjectService = async (
+  userId: string,
+  workspaceId: string,
+  projectId: string,
+  data: UpdateProjectData,
+) => {
+  const updated = await updateProject(userId, workspaceId, projectId, data);
+  return { project: updated };
+};
+
+export const deleteProjectService = async (
+  userId: string,
+  workspaceId: string,
+  projectId: string,
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const deletedProject = await deleteProject(userId, workspaceId, projectId, session);
+
+    await session.commitTransaction();
+    return deletedProject;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};

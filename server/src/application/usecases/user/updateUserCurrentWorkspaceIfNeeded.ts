@@ -9,7 +9,7 @@ export const updateUserCurrentWorkspaceIfNeeded = async (
   session?: ClientSession,
 ) => {
   if (!user.currentWorkspace || user.currentWorkspace !== workspaceId) return;
-  if (!user.id) return; // ou throw new Error("User ID is required");
+  if (!user.id) return; 
 
   const memberRepository = new MemberRepository();
   const userRepository = new UserRepository();

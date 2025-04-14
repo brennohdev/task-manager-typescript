@@ -31,6 +31,34 @@ export class ProjectRepository implements IProjectRepository {
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  async findPaginatedByWorkspace(workspaceId: Types.ObjectId, page: number, limit: number) {
+    const totalCount = await ProjectModel.countDocuments({ workspace: workspaceId });
+
+    const skip = (page - 1) * limit;
+
+    const docs = await ProjectModel.find({ workspace: workspaceId })
+      .skip(skip)
+      .limit(limit)
+      .populate('createdBy', '_id name profilePicture')
+      .sort({ createdAt: -1 });
+
+    return {
+      projects: docs.map((doc) => this.toEntity(doc)),
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      skip,
+    };
+  }
+
+  async findByIdAndWorkspace(projectId: string, workspaceId: string) {
+    return ProjectModel.findOne({
+      _id: projectId,
+      workspace: workspaceId,
+    })
+      .select('_id emoji name description workspace createdBy createdAt updatedAt')
+      .populate('createdBy', '_id name profilePicture');
+  }
+
   async update(project: Project): Promise<void> {
     if (!project.id) throw new Error('Project ID is required for update.');
     await ProjectModel.findByIdAndUpdate(project.id, {
@@ -40,12 +68,37 @@ export class ProjectRepository implements IProjectRepository {
     });
   }
 
-  async deleteManyByWorkspaceId(workspaceId: Types.ObjectId, session?: ClientSession): Promise<void> {
+  async updateById(
+    projectId: string,
+    data: Partial<Pick<Project, 'name' | 'description' | 'emoji'>>,
+  ): Promise<Project | null> {
+    const updated = await ProjectModel.findByIdAndUpdate(
+      projectId,
+      {
+        $set: {
+          ...data,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true },
+    );
+
+    return updated ? this.toEntity(updated) : null;
+  }
+
+  async deleteManyByWorkspaceId(
+    workspaceId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<void> {
     await ProjectModel.deleteMany({ workspace: workspaceId }).session(session || null);
   }
 
-  async delete(id: Types.ObjectId): Promise<void> {
-    await ProjectModel.findByIdAndDelete(id);
+  async delete(id: Types.ObjectId, session?: ClientSession): Promise<void> {
+    await ProjectModel.findByIdAndDelete(id).session(session || null);
+  }
+
+  async deleteById(projectId: string, session?: ClientSession): Promise<void> {
+    await ProjectModel.findByIdAndDelete(projectId).session(session || null);
   }
 
   private toEntity(doc: ProjectDocuments): Project {

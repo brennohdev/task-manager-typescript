@@ -45,7 +45,6 @@ export const signUpUser = async (body: { email: string; name: string; password: 
       session,
     );
 
-    // Verifica se o workspaceId é válido antes de continuar
     if (!Types.ObjectId.isValid(workspace.id!)) {
       throw new Error('Invalid workspace ID');
     }

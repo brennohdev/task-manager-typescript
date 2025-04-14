@@ -65,6 +65,10 @@ export class TaskRepository implements ITaskRepository {
     await TaskModel.deleteMany({ workspace: workspaceId }).session(session || null);
   }
 
+  async deleteManyByProject(projectId: string, session?: ClientSession): Promise<void> {
+    await TaskModel.deleteMany({ project: projectId }).session(session || null);
+  }
+
   async update(task: Task, session?: ClientSession): Promise<void> {
     await TaskModel.findByIdAndUpdate(
       task.id,
@@ -81,8 +85,8 @@ export class TaskRepository implements ITaskRepository {
     );
   }
 
-  async delete(id: Types.ObjectId): Promise<void> {
-    await TaskModel.findByIdAndDelete(id);
+  async delete(id: Types.ObjectId, session?: ClientSession): Promise<void> {
+    await TaskModel.findByIdAndDelete(id).session(session || null);
   }
 
   private toEntity(doc: TaskDocument): Task {

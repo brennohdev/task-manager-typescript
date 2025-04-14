@@ -15,10 +15,8 @@ export const createWorkspaceForUserSignUp = async (
     generateInviteCode(),
   );
 
-  // Salva o workspace no banco de dados
   const savedWorkspace = await workspaceRepository.create(workspace, session);
 
-  // Verifica se o ID do workspace gerado pelo Mongoose é válido
   if (!savedWorkspace.id || !savedWorkspace.id.toString()) {
     throw new Error('Invalid workspace ID');
   }

@@ -8,4 +8,5 @@ export interface ITaskRepository {
   findByWorkspace(workspaceId: Types.ObjectId): Promise<Task[]>;
   update(task: Task): Promise<void>;
   delete(id: Types.ObjectId): Promise<void>;
+  deleteManyByProject(projectId: string): Promise<void>;
 }
