@@ -1,5 +1,5 @@
 // services/authService.ts
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { ProviderEnum } from '../../domain/enums/accountProvider';
 
 import { AccountRepository } from '../../infrastructure/database/repositories/account';
@@ -44,6 +44,12 @@ export const signUpUser = async (body: { email: string; name: string; password: 
       workspaceRepository,
       session,
     );
+
+    // Verifica se o workspaceId é válido antes de continuar
+    if (!Types.ObjectId.isValid(workspace.id!)) {
+      throw new Error('Invalid workspace ID');
+    }
+
     await updateUserCurrentWorkspace(user, workspace.id!, userRepository, session);
     await addMemberToWorkspace(user.id!, workspace.id!, memberRepository, session);
 
@@ -57,6 +63,7 @@ export const signUpUser = async (body: { email: string; name: string; password: 
     throw error;
   }
 };
+
 
 export const processUserAccountFlow = async (data: {
   provider: keyof typeof ProviderEnum;

@@ -40,6 +40,10 @@ export class ProjectRepository implements IProjectRepository {
     });
   }
 
+  async deleteManyByWorkspaceId(workspaceId: Types.ObjectId, session?: ClientSession): Promise<void> {
+    await ProjectModel.deleteMany({ workspace: workspaceId }).session(session || null);
+  }
+
   async delete(id: Types.ObjectId): Promise<void> {
     await ProjectModel.findByIdAndDelete(id);
   }

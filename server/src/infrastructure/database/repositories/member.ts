@@ -38,16 +38,46 @@ export class MemberRepository implements IMemberRepository {
     return doc ? this.toEntity(doc) : null;
   }
 
+  async findManyByWorkspaceId(workspaceId: string): Promise<Member[]> {
+    const members = await MemberModel.find({ workspaceId })
+      .populate('userId', 'name email profilePicture')  // Popula os dados do usuário
+      .exec();
+  
+    return members.map((doc) => this.toEntity(doc));
+  }
+
+  async findManyWithUserByWorkspaceId(workspaceId: string) {
+    return MemberModel
+      .find({ workspaceId })
+      .populate("userId", "name email profilePicture") // sem password
+      .lean();
+  }
+
+  async deleteManyByWorkspaceId(workspaceId: string, session?: ClientSession): Promise<void> {
+    await MemberModel.deleteMany({ workspaceId: new Types.ObjectId(workspaceId) }).session(session || null);
+  }
+
+  async findFirstByUserId(userId: string): Promise<Member | null> {
+    const doc = await MemberModel.findOne({ userId: new Types.ObjectId(userId) });
+    return doc ? this.toEntity(doc) : null;
+  }
+
   async remove(memberId: string): Promise<void> {
     await MemberModel.findByIdAndDelete(new Types.ObjectId(memberId));
   }
+  
 
   private toEntity(doc: MemberDocument): Member {
+    const user = doc.userId as any;
+
     return new Member(
       doc.userId.toString(),
       doc.workspaceId.toString(),
       doc.joinedAt,
       doc.id.toString(),
+      user.name,
+      user.email,
+      user.profilePicture
     );
   }
 }

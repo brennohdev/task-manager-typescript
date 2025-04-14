@@ -18,6 +18,7 @@ import authRoute from './interfaces/routes/auth';
 import userRoute from './interfaces/routes/user';
 import isAuthenticated from './infrastructure/middlewares/Authenticate';
 import workspaceRoute from './interfaces/routes/workspace';
+import memberRoute from './interfaces/routes/member';
 
 const app = express();
 const BASE_PATH = config.BASE_PATH; // Using the config from app.config.ts
@@ -76,6 +77,7 @@ app.get(
 app.use(`${BASE_PATH}/auth`, authRoute);
 app.use(`${BASE_PATH}/user`, isAuthenticated, userRoute);
 app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoute);
+app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoute);
 
 app.use(errorHandler);
 

@@ -8,6 +8,10 @@ export const addMemberToWorkspace = async (
   memberRepository: MemberRepository,
   session?: any,
 ) => {
+  if (!Types.ObjectId.isValid(workspaceId)) {
+    throw new Error('Invalid workspace ID');
+  }
+
   const member = new Member(
     userId,
     workspaceId,

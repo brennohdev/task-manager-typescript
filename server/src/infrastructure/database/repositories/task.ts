@@ -2,6 +2,7 @@ import { ITaskRepository } from '../../../domain/repositories/task';
 import { Task } from '../../../domain/entities/Task';
 import TaskModel, { TaskDocument } from '../models/task';
 import { Types, ClientSession } from 'mongoose';
+import { TaskStatusEnum } from '../../../domain/enums/taskStatus';
 
 export class TaskRepository implements ITaskRepository {
   async create(task: Omit<Task, 'id'>, session?: ClientSession): Promise<Task> {
@@ -31,6 +32,25 @@ export class TaskRepository implements ITaskRepository {
     return doc ? this.toEntity(doc) : null;
   }
 
+  async countTotalTasks(workspaceId: Types.ObjectId): Promise<number> {
+    return await TaskModel.countDocuments({ workspace: workspaceId });
+  }
+
+  async countOverdueTasks(workspaceId: Types.ObjectId, currentDate: Date): Promise<number> {
+    return await TaskModel.countDocuments({
+      workspace: workspaceId,
+      dueDate: { $lt: currentDate },
+      status: { $ne: TaskStatusEnum.DONE },
+    });
+  }
+
+  async countCompletedTasks(workspaceId: Types.ObjectId): Promise<number> {
+    return await TaskModel.countDocuments({
+      workspace: workspaceId,
+      status: TaskStatusEnum.DONE,
+    });
+  }
+
   async findByProject(projectId: Types.ObjectId): Promise<Task[]> {
     const docs = await TaskModel.find({ project: projectId });
     return docs.map((doc) => this.toEntity(doc));
@@ -39,6 +59,10 @@ export class TaskRepository implements ITaskRepository {
   async findByWorkspace(workspaceId: Types.ObjectId): Promise<Task[]> {
     const docs = await TaskModel.find({ workspace: workspaceId });
     return docs.map((doc) => this.toEntity(doc));
+  }
+  
+  async deleteManyByWorkspaceId(workspaceId: Types.ObjectId, session?: ClientSession): Promise<void> {
+    await TaskModel.deleteMany({ workspace: workspaceId }).session(session || null);
   }
 
   async update(task: Task, session?: ClientSession): Promise<void> {

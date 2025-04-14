@@ -5,5 +5,9 @@ export class Member {
     public workspaceId: string,
     public joinedAt: Date,
     public id?: string,
+    public name?: string,
+    public email?: string,
+    public profilePicture?: string
   ) {}
 }
+

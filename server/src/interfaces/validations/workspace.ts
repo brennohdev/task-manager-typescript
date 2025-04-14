@@ -7,8 +7,7 @@ export const nameSchema = z
   .max(255);
 export const descriptionSchema = z.string().trim().optional();
 
-export const workspaceIdSchema = z.string().trim().min(1, {message: "Worskáde ID is required."})
-
+export const workspaceIdSchema = z.string().trim().min(1, { message: 'Worskáde ID is required.' });
 
 export const createWorkspaceSchema = z.object({
   name: nameSchema,

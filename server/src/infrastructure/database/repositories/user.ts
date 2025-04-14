@@ -43,7 +43,7 @@ export class UserRepository implements IUserRepository {
       profilePicture: user.profilePicture,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
-      currentWorkspace: user.currentWorkspace
+      currentWorkspace: user.currentWorkspace && mongoose.Types.ObjectId.isValid(user.currentWorkspace)
         ? new mongoose.Types.ObjectId(user.currentWorkspace)
         : null,
     };
@@ -61,7 +61,7 @@ export class UserRepository implements IUserRepository {
       profilePicture: userData.profilePicture,
       isActive: userData.isActive ?? true,
       lastLogin: userData.lastLogin ?? null,
-      currentWorkspace: userData.currentWorkspace
+      currentWorkspace: userData.currentWorkspace && mongoose.Types.ObjectId.isValid(userData.currentWorkspace)
         ? new mongoose.Types.ObjectId(userData.currentWorkspace)
         : null,
     };
@@ -149,7 +149,9 @@ export class UserRepository implements IUserRepository {
     }
   
     const update: Record<string, any> = {
-      currentWorkspace: workspaceId ? new mongoose.Types.ObjectId(workspaceId) : null,
+      currentWorkspace: workspaceId && mongoose.Types.ObjectId.isValid(workspaceId)
+        ? new mongoose.Types.ObjectId(workspaceId)
+        : null,
     };
   
     await UserModel.findByIdAndUpdate(userId, update, { session });

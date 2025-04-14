@@ -2,7 +2,6 @@ import { Workspace } from '../../../domain/entities/Workspace';
 import { WorkspaceRepository } from '../../../infrastructure/database/repositories/workspace';
 import { generateInviteCode } from '../../../shared/utils/generateInviteCode';
 
-
 export const createWorkspaceForUserSignUp = async (
   userId: string,
   userName: string,
@@ -16,5 +15,13 @@ export const createWorkspaceForUserSignUp = async (
     generateInviteCode(),
   );
 
-  return workspaceRepository.create(workspace, session);
+  // Salva o workspace no banco de dados
+  const savedWorkspace = await workspaceRepository.create(workspace, session);
+
+  // Verifica se o ID do workspace gerado pelo Mongoose é válido
+  if (!savedWorkspace.id || !savedWorkspace.id.toString()) {
+    throw new Error('Invalid workspace ID');
+  }
+
+  return savedWorkspace;
 };
