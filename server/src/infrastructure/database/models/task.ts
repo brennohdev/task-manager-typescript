@@ -10,7 +10,7 @@ import { generateTaskCode } from '../../../shared/utils/generateInviteCode';
 export interface TaskDocument extends Document {
   updatedAt: Date | undefined;
   taskCode: string;
-  tittle: string;
+  title: string;
   description: string | null;
   project: mongoose.Types.ObjectId;
   workspace: mongoose.Types.ObjectId;
@@ -30,9 +30,9 @@ const taskSchema = new Schema<TaskDocument>(
       unique: true,
       default: generateTaskCode,
     },
-    tittle: {
+    title: {
       type: String,
-      unique: true,
+      required: true,
       trim: true,
     },
     description: {

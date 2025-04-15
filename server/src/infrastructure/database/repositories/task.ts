@@ -10,7 +10,7 @@ export class TaskRepository implements ITaskRepository {
       [
         {
           taskCode: task.taskCode,
-          tittle: task.tittle,
+          title: task.title,
           description: task.description,
           project: task.project,
           workspace: task.workspace,
@@ -27,10 +27,40 @@ export class TaskRepository implements ITaskRepository {
     return this.toEntity(doc[0]);
   }
 
-  async findById(id: Types.ObjectId): Promise<Task | null> {
-    const doc = await TaskModel.findById(id);
+  async findById(id: Types.ObjectId, session?: ClientSession): Promise<Task | null> {
+    const doc = await TaskModel.findById(id).session(session || null);
     return doc ? this.toEntity(doc) : null;
   }
+
+  async findManyWithPagination(
+    query: Record<string, any>,
+    skip: number,
+    limit: number
+  ): Promise<Task[]> {
+    const taskDocs = await TaskModel.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate("assignedTo", "_id name profilePicture")
+      .populate("project", "_id emoji name");
+  
+    return taskDocs.map((doc) => this.toEntity(doc));  
+  }
+
+  async count(query: Record<string, any>): Promise<number> {
+    return TaskModel.countDocuments(query);
+  }
+
+  async findByIdWithDetails(taskId: string, projectId: string, workspaceId: string) {
+    const task = await TaskModel.findOne({
+      _id: taskId,
+      project: projectId,
+      workspace: workspaceId,
+    }).populate("assignedTo", "_id name profilePicture -password");
+  
+    return task ? this.toEntity(task) : null;
+  }
+
 
   async countTotalTasks(workspaceId: Types.ObjectId): Promise<number> {
     return await TaskModel.countDocuments({ workspace: workspaceId });
@@ -60,8 +90,11 @@ export class TaskRepository implements ITaskRepository {
     const docs = await TaskModel.find({ workspace: workspaceId });
     return docs.map((doc) => this.toEntity(doc));
   }
-  
-  async deleteManyByWorkspaceId(workspaceId: Types.ObjectId, session?: ClientSession): Promise<void> {
+
+  async deleteManyByWorkspaceId(
+    workspaceId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<void> {
     await TaskModel.deleteMany({ workspace: workspaceId }).session(session || null);
   }
 
@@ -74,7 +107,7 @@ export class TaskRepository implements ITaskRepository {
       task.id,
       {
         taskCode: task.taskCode,
-        tittle: task.tittle,
+        title: task.title,
         description: task.description,
         status: task.status,
         priority: task.priority,
@@ -92,7 +125,7 @@ export class TaskRepository implements ITaskRepository {
   private toEntity(doc: TaskDocument): Task {
     return new Task(
       doc.taskCode,
-      doc.tittle,
+      doc.title,
       doc.description,
       doc.project,
       doc.workspace,

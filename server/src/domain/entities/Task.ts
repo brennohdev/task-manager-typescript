@@ -5,7 +5,7 @@ import { TaskStatusEnumType } from '../enums/taskStatus';
 export class Task {
   constructor(
     public taskCode: string,
-    public tittle: string,
+    public title: string,
     public description: string | null,
     public project: Types.ObjectId,
     public workspace: Types.ObjectId,

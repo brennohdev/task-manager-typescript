@@ -1,15 +1,26 @@
-import { TaskStatusEnum, TaskPriorityEnum } from '../../domain/enums/taskStatus';
+import {
+  TaskStatusEnum,
+  TaskPriorityEnum,
+  TaskPriorityEnumType,
+  TaskStatusEnumType,
+} from '../../domain/enums/taskStatus';
 import mongoose, { Types } from 'mongoose';
 import { Task } from '../../domain/entities/Task';
-import { MemberRepository } from '../../infrastructure/database/repositories/member';
-import { ProjectRepository } from '../../infrastructure/database/repositories/project';
-import { TaskRepository } from '../../infrastructure/database/repositories/task';
-import { NotFoundException } from '../../shared/utils/appError';
-import { generateTaskCode } from '../../shared/utils/generateInviteCode';
 import { validateMember } from '../usecases/member/validateMember';
 import { validateProject } from '../usecases/project/verifyProject';
 import { createTaskUseCase } from '../usecases/task/createTask';
 import { generateTaskCodeUseCase } from '../usecases/task/generateTaskCode';
+import { validateTaskBelongsToProject } from '../usecases/task/validateTaskBelongsToProject';
+import { TaskRepository } from '../../infrastructure/database/repositories/task';
+import { BadRequestException, NotFoundException } from '../../shared/utils/appError';
+import ProjectModel from '../../infrastructure/database/models/project';
+import TaskModel from '../../infrastructure/database/models/task';
+import { getAccessLevelInWorkspace } from '../usecases/member/checkUserInWorkspace';
+import { MemberRepository } from '../../infrastructure/database/repositories/member';
+import { ProjectRepository } from '../../infrastructure/database/repositories/project';
+import { validateProjectBelongsToWorkspace } from '../usecases/project/validateProjectBelongsToWorkspace';
+import { getTaskByIdWithDetailsUseCase } from '../usecases/task/getTaskById';
+import { deleteTask } from '../usecases/task/deleteTask';
 
 interface CreateTaskInput {
   workspace: string;
@@ -21,6 +32,20 @@ interface CreateTaskInput {
   status: keyof typeof TaskStatusEnum;
   assignedTo?: string | null;
   dueDate?: string;
+}
+
+interface Filters {
+  projectId?: string;
+  status?: string[];
+  priority?: string[];
+  assignedTo?: string[];
+  keyword?: string;
+  dueDate?: string;
+}
+
+interface Pagination {
+  pageSize: number;
+  pageNumber: number;
 }
 
 export const createTaskService = async (input: CreateTaskInput) => {
@@ -67,19 +92,80 @@ export const createTaskService = async (input: CreateTaskInput) => {
     return createdTask;
   } catch (error) {
     await session.abortTransaction();
-    throw error; // Lidar com o erro conforme necessário
+    throw error;
   } finally {
     session.endSession();
   }
 };
-/* 
-    Get all Tasks by Workspace
-1. Return all tasks that belong to a specific workspace
-2. Supports filtering by status, priority, and search by title
 
-    Business rules
-Only members of the workspace can see tasks
-*/
+export const getAllTasksService = async (
+  workspaceId: string,
+  filters: Filters,
+  pagination: Pagination,
+): Promise<{
+  tasks: Task[];
+  pagination: {
+    pageSize: number;
+    pageNumber: number;
+    totalCount: number;
+    totalPages: number;
+    skip: number;
+  };
+}> => {
+  const taskRepository = new TaskRepository();
+
+  const query: Record<string, any> = {
+    workspace: workspaceId,
+  };
+
+  if (filters.projectId) {
+    query.project = filters.projectId;
+  }
+
+  if (filters.status?.length) {
+    query.status = { $in: filters.status };
+  }
+
+  if (filters.priority?.length) {
+    query.priority = { $in: filters.priority };
+  }
+
+  if (filters.assignedTo?.length) {
+    query.assignedTo = { $in: filters.assignedTo };
+  }
+
+  if (filters.keyword) {
+    query.title = { $regex: filters.keyword, $options: 'i' };
+  }
+
+  if (filters.dueDate) {
+    query.dueDate = {
+      $eq: new Date(filters.dueDate),
+    };
+  }
+  console.log('QUERY USADA:', query);
+
+  const { pageSize, pageNumber } = pagination;
+  const skip = (pageNumber - 1) * pageSize;
+
+  const [tasks, totalCount] = await Promise.all([
+    taskRepository.findManyWithPagination(query, skip, pageSize),
+    taskRepository.count(query),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  return {
+    tasks,
+    pagination: {
+      pageSize,
+      pageNumber,
+      totalCount,
+      totalPages,
+      skip,
+    },
+  };
+};
 
 /* 
     Get Task by ID
@@ -90,14 +176,69 @@ Only members of the workspace can see tasks
 Only members of the workspace can access task details
 */
 
-/* 
-    Update Task by ID
-1. Update task fields (title, description, status, due date, etc.)
+export const getTaskByIdService = async (
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+) => {
+  const projectRepository = new ProjectRepository();
+  const taskRepository = new TaskRepository();
 
-    Business rules
-Only members of the workspace can update tasks
-*/
+  await validateProjectBelongsToWorkspace(projectId, workspaceId, projectRepository);
 
+  const task = await getTaskByIdWithDetailsUseCase(taskId, projectId, workspaceId, taskRepository);
+  if (!task) {
+    throw new NotFoundException('Task not found.');
+  }
+
+  return task;
+};
+
+export const updateTaskService = async (
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  body: {
+    title: string;
+    description?: string;
+    priority: string;
+    status: string;
+    assignedTo?: string | null;
+    dueDate?: string;
+  },
+) => {
+  const project = await ProjectModel.findById(projectId);
+  const memberRepository = new MemberRepository();
+
+  if (!project || project.workspace.toString() !== workspaceId.toString()) {
+    throw new NotFoundException('Project not found or does not belong to this workspace');
+  }
+
+  const task = await TaskModel.findById(taskId);
+
+  if (!task || task.project.toString() !== projectId.toString()) {
+    throw new NotFoundException('Task not found or does not belong to this project');
+  }
+
+  const member = await memberRepository.findMemberByWorkspace(workspaceId);
+  if (!member) {
+    throw new BadRequestException('User is not allowed to update tasks in this workspace.');
+  }
+
+  const updatedTask = await TaskModel.findByIdAndUpdate(
+    taskId,
+    {
+      ...body,
+    },
+    { new: true },
+  );
+
+  if (!updatedTask) {
+    throw new BadRequestException('Failed to update task');
+  }
+
+  return { updatedTask };
+};
 /* 
     Delete Task by ID
 1. Delete a task permanently from the workspace
@@ -106,19 +247,19 @@ Only members of the workspace can update tasks
 Only the user who created the task can delete it
 */
 
-/* 
-    Get Tasks by Project ID
-1. Return all tasks that are linked to a specific project
-2. Useful for project dashboards or Kanban views
+export const deleteTaskService = async (workspaceId: string, taskId: string, userId: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    Business rules
-Only members of the workspace/project can view the tasks
-*/
+  try {
+    await deleteTask(workspaceId, taskId, userId);
 
-/* 
-    Change Task Status
-1. Change the current status of a task (e.g., from TODO to DONE)
-
-    Business rules
-Only assigned members or the creator can change the status
-*/
+    await session.commitTransaction();
+    return;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
