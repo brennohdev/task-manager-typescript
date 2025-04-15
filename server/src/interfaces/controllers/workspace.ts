@@ -10,7 +10,7 @@ import {
   createWorkspaceService,
   deleteWorkspaceService,
   getAllMembersDetailsService,
-  getAllWorkspacesService,
+  getAllUserWorkspacesService,
   getAnalyticsService,
   getWorkspaceDetailsService,
   updateWorkspaceService,
@@ -33,7 +33,7 @@ export const createWorkspaceController = asyncHandler(async (req: Request, res: 
 export const getUserWorkspaces = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
 
-  const workspaces = await getAllWorkspacesService(userId);
+  const workspaces = await getAllUserWorkspacesService(userId);
 
   return res.status(HTTPSTATUS.OK).json({
     message: 'User workspaces fetched successfully',

@@ -65,6 +65,11 @@ export class MemberRepository implements IMemberRepository {
   async remove(memberId: string): Promise<void> {
     await MemberModel.findByIdAndDelete(new Types.ObjectId(memberId));
   }
+
+  async isMemberOfWorkspace(userId: Types.ObjectId, workspaceId: Types.ObjectId): Promise<boolean> {
+    const result = await MemberModel.exists({ userId, workspaceId });
+    return !!result;
+  }
   
 
   private toEntity(doc: MemberDocument): Member {

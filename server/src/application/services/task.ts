@@ -1,14 +1,77 @@
-/* 
-    Create a new Task
-1. Create a new task linked to a workspace and a project
-2. Assign the task to one or more users
+import { TaskStatusEnum, TaskPriorityEnum } from '../../domain/enums/taskStatus';
+import mongoose, { Types } from 'mongoose';
+import { Task } from '../../domain/entities/Task';
+import { MemberRepository } from '../../infrastructure/database/repositories/member';
+import { ProjectRepository } from '../../infrastructure/database/repositories/project';
+import { TaskRepository } from '../../infrastructure/database/repositories/task';
+import { NotFoundException } from '../../shared/utils/appError';
+import { generateTaskCode } from '../../shared/utils/generateInviteCode';
+import { validateMember } from '../usecases/member/validateMember';
+import { validateProject } from '../usecases/project/verifyProject';
+import { createTaskUseCase } from '../usecases/task/createTask';
+import { generateTaskCodeUseCase } from '../usecases/task/generateTaskCode';
 
-    Business rules
-A task must be linked to a valid workspace
-A task must be part of a project
-Only members of the workspace can be assigned to the task
-*/
+interface CreateTaskInput {
+  workspace: string;
+  project: string;
+  createdBy: string;
+  title: string;
+  description?: string;
+  priority: keyof typeof TaskPriorityEnum;
+  status: keyof typeof TaskStatusEnum;
+  assignedTo?: string | null;
+  dueDate?: string;
+}
 
+export const createTaskService = async (input: CreateTaskInput) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const {
+      workspace,
+      project,
+      createdBy,
+      title,
+      description,
+      priority,
+      status,
+      assignedTo,
+      dueDate,
+    } = input;
+
+    await validateProject(project, workspace, session);
+
+    if (assignedTo) {
+      await validateMember(assignedTo, workspace, session);
+    }
+
+    const generatedCode = generateTaskCodeUseCase();
+
+    const taskEntity = new Task(
+      generatedCode,
+      title,
+      description || null,
+      new Types.ObjectId(project),
+      new Types.ObjectId(workspace),
+      status,
+      priority,
+      assignedTo ? new Types.ObjectId(assignedTo) : null,
+      new Types.ObjectId(createdBy),
+      dueDate ? new Date(dueDate) : null,
+    );
+
+    const createdTask = await createTaskUseCase(taskEntity, session);
+
+    await session.commitTransaction();
+    return createdTask;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error; // Lidar com o erro conforme necessário
+  } finally {
+    session.endSession();
+  }
+};
 /* 
     Get all Tasks by Workspace
 1. Return all tasks that belong to a specific workspace

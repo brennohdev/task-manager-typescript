@@ -54,7 +54,7 @@ export const createWorkspaceService = async (
   }
 };
 
-export const getAllWorkspacesService = async (userId: string) => {
+export const getAllUserWorkspacesService = async (userId: string) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   console.log('Session started..');
