@@ -136,5 +136,5 @@ A Clean Architecture permitiu criar um código desacoplado, testável e fácil d
 
 ---
 
-Feito com muito café e muito amor por **Cami** e **Brenno**. ☕💜
+Feito com muito café e muito amor por **Brenno**. ☕💜
 
