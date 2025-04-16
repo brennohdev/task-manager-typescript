@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { TestCompnenet } from '@/features/test';
 // app/page.tsx
 export default function Home() {
   return (
