@@ -1,5 +1,8 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
-import { DottedSeparator } from '@/components/dotted-separato';
+import { DottedSeparator } from '@/components/separator';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,24 +11,35 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '../../../co
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-
-const formSchema = z.object({
-  name: z.string().trim().min(1, 'Required'),
-  email: z.string().email(),
-  password: z.string().min(8, 'Minimum of 8 chacacters required'),
-});
+import { useMutation } from '@tanstack/react-query';
+import { error } from 'console';
+import { registerSchema } from '@/validator/authSchema';
+import { useLogin } from '../hooks/useLogin';
+import { useRegister } from '../hooks/useRegister';
 
 export const RegisterCard = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log({ values });
+  const { mutate, status } = useRegister();
+
+  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+    mutate(values, {
+      onSuccess: (data) => {
+        console.log('Registration successful', data);
+        router.push('/login');
+      },
+      onError: (error) => {
+        console.error('Error registering', error);
+      },
+    });
   };
 
   return (
@@ -86,7 +100,7 @@ export const RegisterCard = () => {
                 </FormItem>
               )}
             />
-            <Button disabled={false} size="lg" className="w-full">
+            <Button disabled={status === 'pending'} size="lg" className="w-full">
               Register
             </Button>
           </form>
@@ -94,19 +108,13 @@ export const RegisterCard = () => {
       </CardContent>
       <div className="px-7 flex flex-col gap-y-4">
         <DottedSeparator />
-        <CardContent>
-          <Button variant="secondary" size="lg" className="w-full" disabled={false}>
-            <FcGoogle className="mr-2 size-5" />
-            Register with Google
-          </Button>
-        </CardContent>
       </div>
-      <div className="px-7">
-      </div>
-      <CardContent className="flex items-center justify-center text-sm">
-        <p>Already have an account?
+      <div className="px-7"></div>
+      <CardContent className="p-7 flex items-center justify-center text-sm">
+        <p>
+          Already have an account?
           <Link href="/login">
-             <span className='text-slate-600'>&nbsp;Login</span> 
+            <span className="text-slate-600">&nbsp;Login</span>
           </Link>
         </p>
       </CardContent>

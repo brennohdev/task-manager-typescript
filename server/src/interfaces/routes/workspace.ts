@@ -13,11 +13,11 @@ import { deleteWorkspaceService } from '../../application/services/workspace';
 
 const workspaceRoute = Router();
 
-workspaceRoute.post('/create/new', isAuthenticated, createWorkspaceController);
+workspaceRoute.post('/', isAuthenticated, createWorkspaceController);
 
-workspaceRoute.put('/update/:id', updateWorkspaceById);
+workspaceRoute.put('/:id', updateWorkspaceById);
 
-workspaceRoute.delete('/delete/:id', deleteWorkspace)
+workspaceRoute.delete('/:id', deleteWorkspace)
 
 workspaceRoute.get('/all', getUserWorkspaces);
 workspaceRoute.get('/:id', getWorkspaceById);

@@ -1,6 +1,5 @@
 import { generateInviteCode } from "../../shared/utils/generateInviteCode";
 
-// Workspace entity
 export class Workspace {
   constructor(
     public name: string,

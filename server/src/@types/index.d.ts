@@ -10,6 +10,8 @@ declare global {
       email: string;
       picture?: string;
       currentWorkspace?: string;
+      googleId?: string,
+      displayName?: string,
     }
   }
 }
