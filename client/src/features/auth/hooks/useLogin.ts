@@ -13,8 +13,9 @@ export const useLogin = () => {
   // Função de sucesso
   const handleLoginSuccess = () => {
     queryClient.invalidateQueries(); // Força o recarregamento dos dados
-    router.refresh(); // Força o refresh da página
+    queryClient.clear();
     toast.success('Logged in successfully!');
+    router.refresh(); // Força o refresh da página
   };
 
   return useMutation<LoginResponse, AxiosError, LoginPayload>({

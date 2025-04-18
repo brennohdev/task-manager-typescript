@@ -86,13 +86,15 @@ export const updateWorkspaceById = asyncHandler(async (req: Request, res: Respon
   const userId = req.user!.id;
   const body = updateWorkspaceSchema.parse(req.body);
 
+  console.log('Received data in backend:', body);
+
   await getAccessLevelInWorkspace(userId, workspaceId);
 
   const updatedWorkspace = await updateWorkspaceService(workspaceId, body);
 
   return res.status(200).json({
     message: 'Workspace updated successfully.',
-    updatedWorkspace,
+    workspace: updatedWorkspace,
   });
 });
 

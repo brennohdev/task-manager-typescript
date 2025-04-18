@@ -15,9 +15,9 @@ const workspaceRoute = Router();
 
 workspaceRoute.post('/', isAuthenticated, createWorkspaceController);
 
-workspaceRoute.put('/:id', updateWorkspaceById);
+workspaceRoute.put('/update/:id', updateWorkspaceById);
 
-workspaceRoute.delete('/:id', deleteWorkspace)
+workspaceRoute.delete('/delete/:id', deleteWorkspace)
 
 workspaceRoute.get('/all', getUserWorkspaces);
 workspaceRoute.get('/:id', getWorkspaceById);

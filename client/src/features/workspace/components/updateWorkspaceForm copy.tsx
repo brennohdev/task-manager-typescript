@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle, CardHeader, CardDescription } from '@/components/ui/card';
-import { createWorkspaceSchema } from '@/validator/workspaceSchema';
+import { updateWorkspaceSchema, Workspace } from '@/validator/workspaceSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -20,30 +20,37 @@ import { createWorkspace } from '../repositories/createWorkspace';
 import { useCreateWorkspace } from '../hooks/useCreateWorkspace';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { useUpdateWorkspace } from '../hooks/useUpdateWorkspace';
+import { useRouter } from 'next/navigation';
 
-interface CreateWorkspaceFormProps {
-  onCancel?: () => void;
+interface UpdateWorkspaceFormProps {
+  onCancel: () => void;
+  initialValues: Workspace;
 }
 
-export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
-  const { mutate, isPending } = useCreateWorkspace();
+export const UpdateWorkspaceForm = ({ onCancel, initialValues }: UpdateWorkspaceFormProps) => {
+  const router = useRouter();
+  const { mutate, isPending } = useUpdateWorkspace();
 
-  const form = useForm<z.infer<typeof createWorkspaceSchema>>({
-    resolver: zodResolver(createWorkspaceSchema),
+  const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
+    resolver: zodResolver(updateWorkspaceSchema),
     defaultValues: {
-      name: '',
-      description: '',
+      name: initialValues.name,
+      description: initialValues.description ?? '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createWorkspaceSchema>) => {
-    mutate(values);
+  const onSubmit = (values: z.infer<typeof updateWorkspaceSchema>) => {
+    mutate({ id: initialValues.id, ...values });
   };
 
   return (
     <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7">
-        <CardTitle className="text-xl font-bold">Let's create a workspace!</CardTitle>
+      <CardHeader className="flex flex-row items-center gap-x-4 o-7 space-y-0">
+        
+        <CardTitle className="text-xl font-bold">
+          {initialValues.name}
+        </CardTitle>
       </CardHeader>
       <div className="px-7">
         <DottedSeparator />
@@ -73,7 +80,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Add a short description (optional)" />
+                      <Input {...field} placeholder="Description" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -86,13 +93,16 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                   type="button"
                   size="lg"
                   variant="secondary"
-                  onClick={onCancel}
-                  className={cn(!onCancel && "invisible")}
+                  onClick={() => {
+                    onCancel();
+                    router.push(`/workspace/${initialValues.id}`);
+                  }}
+                  className={cn(!onCancel && 'invisible')}
                 >
                   Cancel
                 </Button>
                 <Button disabled={isPending} type="submit" size="lg" variant="primary">
-                  Create
+                  Update
                 </Button>
               </div>
             </div>

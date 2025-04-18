@@ -13,7 +13,7 @@ export const createWorkspaceSchema = z.object({
 });
 
 export const updateWorkspaceSchema = z.object({
-  name: nameSchema,
+  name: z.string().trim().optional(),
   description: descriptionSchema,
 });
 
@@ -46,3 +46,5 @@ export const workspaceListResponseSchema = z.object({
 export type Workspace = z.infer<typeof workspaceSchema>;
 export type CreateWorkspacePayload = z.infer<typeof createWorkspaceSchema>;
 export type CreateWorkspaceResponse = z.infer<typeof workspaceResponseSchema>;
+export type UpdateWorkspacePayload = z.infer<typeof updateWorkspaceSchema>;
+export type UpdateWorkspaceResponse = z.infer<typeof workspaceResponseSchema>;

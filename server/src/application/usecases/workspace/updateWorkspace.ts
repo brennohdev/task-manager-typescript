@@ -25,6 +25,11 @@ export const updateWorkspaceNameAndDescription = async (
   await workspaceRepository.update(workspace, session);
 
   return {
-    workspace,
+    id: workspace.id, 
+    name: workspace.name,
+    description: workspace.description,
+    owner: workspace.owner,
+    inviteCode: workspace.inviteCode,
+    updatedAt: workspace.updatedAt,
   };
 };
