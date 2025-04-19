@@ -1,7 +1,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getUserWorkspacesOnClientRedirect } from '../repositories/getUserWorkspacesOnClienteRedirect';
+import { getUserWorkspacesOnClientRedirect } from '../api/getUserWorkspacesOnClienteRedirect';
 
 export const useAutoRedirectToWorkspace = () => {
   const router = useRouter();

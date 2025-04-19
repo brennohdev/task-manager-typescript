@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
-import { createWorkspace } from '../repositories/createWorkspace';
+import { createWorkspace } from '../api/createWorkspace';
 import { CreateWorkspacePayload } from '@/validator/workspaceSchema';
 import { toast } from 'sonner';
 import { redirect, useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ export const useCreateWorkspace = () => {
     onSuccess: (data) => {
       toast.success(`Workspace "${data.workspace.name}" created successfully!`);
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      router.push(`/workspace/${data.workspace.id}`)
+      router.push(`/workspace/${data.workspace.id}`);
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Failed to create workspace');

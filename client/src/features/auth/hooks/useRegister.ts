@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { register } from '../repositories/register'; // usando axios
+import { register } from '../api/register'; // usando axios
 import { RegisterPayload, RegisterResponse } from '../../../validator/authSchema';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';

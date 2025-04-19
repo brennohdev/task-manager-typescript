@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { UpdateWorkspacePayload, UpdateWorkspaceResponse } from '@/validator/workspaceSchema';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { updateWorkspace } from '../repositories/updateWorkspace';
+import { updateWorkspace } from '../api/updateWorkspace';
 
 type UpdateWorkspaceParams = {
   id: string;

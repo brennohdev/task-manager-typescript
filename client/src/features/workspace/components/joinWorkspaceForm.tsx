@@ -18,7 +18,8 @@ export const JoinWorkspaceForm = () => {
     if (typeof inviteCode === 'string') {
       mutate(inviteCode, {
         onSettled: () => {
-          queryClient.invalidateQueries({ queryKey: ['workspaces'] }); // Invalidando após qualquer resultado
+          queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+          queryClient.invalidateQueries({ queryKey: ['workspace-members'] });
         },
         onSuccess: ({ workspaceId }) => {
           toast.success('Joined workspace successfully!');

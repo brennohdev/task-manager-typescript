@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form';
 import { DottedSeparator } from '@/components/separator';
 import { Input } from '@/components/ui/input';
-import { createWorkspace } from '../repositories/createWorkspace';
+import { createWorkspace } from '../api/createWorkspace';
 import { useCreateWorkspace } from '../hooks/useCreateWorkspace';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
@@ -42,7 +42,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
   };
 
   return (
-    <div className='flex flex-col gap-y-2'>
+    <div className="flex flex-col gap-y-2">
       <Card className="w-full h-full border-none shadow-none">
         <CardHeader className="flex p-7">
           <CardTitle className="text-xl font-bold">Let's create a workspace!</CardTitle>

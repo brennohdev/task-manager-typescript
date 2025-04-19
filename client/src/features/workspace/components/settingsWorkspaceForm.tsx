@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { useUpdateWorkspace } from '../hooks/useUpdateWorkspace';
 import { useRouter } from 'next/navigation';
 import { useConfirm } from '@/hook/modals/useConfirm';
-import { deleteWorkspace } from '../repositories/deleteWorkspace';
+import { deleteWorkspace } from '../api/deleteWorkspace';
 import { useDeleteWorkspace } from '../hooks/useDeleteWorkspace';
 import { CopyIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -166,8 +166,8 @@ export const SettingsWorkspaceForm = ({ onCancel, initialValues }: SettingsWorks
           <div className="flex flex-col">
             <h3 className="font-bold">Invite Code</h3>
             <p className="text-sm text-muted-foreground">
-              Use the invite code to add members to your workspace.
-              They can use it in create workspace form.
+              Use the invite code to add members to your workspace. They can use it in create
+              workspace form.
             </p>
             <div className="mt-4">
               <div className="flex items-center gap-x-2">

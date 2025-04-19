@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DottedSeparator } from '@/components/separator';
 import { useLogout } from '../hooks/useLogout';
-import { useCurrentUser } from '../repositories/userCurrent';
+import { useCurrentUser } from '../api/userCurrent';
 import { Loader, LogOut } from 'lucide-react';
 
 export const UserButton = () => {

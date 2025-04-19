@@ -20,7 +20,7 @@ export const JoinWorkspaceCard = () => {
         <CardTitle className="text-xl font-bold">Join a workspace by invite code</CardTitle>
         <CardDescription>Got an invite code? Enter it below to join a workspace.</CardDescription>
       </CardHeader>
-      <CardContent className="p-7">
+      <CardContent >
         <form onSubmit={handleJoin} className="space-y-4">
           <Input
             type="text"

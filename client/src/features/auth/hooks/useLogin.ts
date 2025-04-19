@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { login } from '../repositories/login'; // usando axios
+import { login } from '../api/login'; // usando axios
 import { LoginPayload, LoginResponse } from '../../../validator/authSchema';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';

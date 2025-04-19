@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteWorkspace } from '../repositories/deleteWorkspace';
+import { deleteWorkspace } from '../api/deleteWorkspace';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { getUserWorkspaces } from '../repositories/getUserWorkspaces';
+import { getUserWorkspaces } from '../api/getUserWorkspaces';
 
 export const useDeleteWorkspace = () => {
   const queryClient = useQueryClient();

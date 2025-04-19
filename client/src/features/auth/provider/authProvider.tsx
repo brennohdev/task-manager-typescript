@@ -1,6 +1,6 @@
 'use client';
 
-import { useCurrentUser } from '@/features/auth/repositories/userCurrent';
+import { useCurrentUser } from '@/features/auth/api/userCurrent';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 
