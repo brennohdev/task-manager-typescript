@@ -8,18 +8,18 @@ import { useAuthStore } from '@/contexts/auth/authStore';
 
 export const RedirectToFirstWorkspace = () => {
   const router = useRouter();
-  const { data: workspaces, isFetched } = useGetWorkspaces(); 
+  const { data: workspaces, isFetched } = useGetWorkspaces();
   const { user } = useAuthStore();
 
   useEffect(() => {
-    if (!user || !isFetched) return;
+    if (!isFetched) return;
 
     if (!workspaces || workspaces.length === 0) {
       router.replace('/workspace/create');
     } else {
       router.replace(`/workspace/${workspaces[0].id}`);
     }
-  }, [user, workspaces, isFetched, router]);
+  }, [isFetched, workspaces, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

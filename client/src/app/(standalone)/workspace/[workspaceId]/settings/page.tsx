@@ -3,7 +3,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useGetWorkspaceById } from '@/features/workspace/hooks/useGetWorkspaceById';
-import { UpdateWorkspaceForm } from '@/features/workspace/components/updateWorkspaceForm copy';
+import { SettingsWorkspaceForm } from '@/features/workspace/components/settingsWorkspaceForm';
 
 const WorkspaceSettingsPage = () => {
   const router = useRouter();
@@ -15,7 +15,7 @@ const WorkspaceSettingsPage = () => {
   if (!workspace) return <div>Workspace not found.</div>;
 
   return (
-    <UpdateWorkspaceForm
+    <SettingsWorkspaceForm
       onCancel={() => router.push(`/workspace/${workspace.id}`)}
       initialValues={workspace}
     />

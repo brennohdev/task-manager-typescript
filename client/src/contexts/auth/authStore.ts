@@ -7,7 +7,7 @@ interface User {
   profilePicture: string | null;
   isActive: boolean;
   lastLogin: string | null;
-  currentWorkspace: string;
+  currentWorkspace: string | null;
   createdAt: string;
   updatedAt: string;
 }
