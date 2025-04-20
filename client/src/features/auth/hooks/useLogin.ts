@@ -4,23 +4,23 @@ import { LoginPayload, LoginResponse } from '../../../validator/authSchema';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
-import { useQueryClient } from '@tanstack/react-query'; // Use esse hook no componente
+import { useQueryClient } from '@tanstack/react-query'; 
 
 export const useLogin = () => {
   const router = useRouter();
-  const queryClient = useQueryClient(); // Coloque dentro do componente
+  const queryClient = useQueryClient(); 
 
-  // Função de sucesso
+  
   const handleLoginSuccess = () => {
-    queryClient.invalidateQueries(); // Força o recarregamento dos dados
+    queryClient.invalidateQueries(); 
     queryClient.clear();
     toast.success('Logged in successfully!');
-    router.refresh(); // Força o refresh da página
+    router.refresh(); 
   };
 
   return useMutation<LoginResponse, AxiosError, LoginPayload>({
     mutationFn: login,
-    onSuccess: handleLoginSuccess, // Passando a função para onSuccess
+    onSuccess: handleLoginSuccess, 
     onError: (error) => {
       const apiError = error.response?.data as { message?: string; error?: string };
       toast.error(apiError?.message || 'Error logging in.');

@@ -82,23 +82,20 @@ export const processUserAccountFlow = async (data: {
     const workspaceRepository = new WorkspaceRepository();
     const memberRepository = new MemberRepository();
 
-    // ⛔️ Verifica se já existe uma Account com esse providerId (login ao invés de criar)
     const existingAccount = await accountRepository.findByProviderId(providerId);
 
     if (existingAccount) {
-      // Se já existir, retorna o usuário vinculado
       const user = await userRepository.findById(existingAccount.userId.toString());
-      await session.endSession(); // não precisa de commit
+      await session.endSession(); 
       return { user };
     }
 
-    // Caso contrário, segue com o fluxo normal de criação
     let user = await userRepository.findByEmail(email);
 
     if (!user) {
       user = await createUserProvider(displayName, email, picture, userRepository, session);
       const workspace = await createWorkspaceForUserSignUp(
-        user.id!.toString(), // Converte para string aqui
+        user.id!.toString(), 
         user.name,
         workspaceRepository,
         session,
@@ -107,7 +104,7 @@ export const processUserAccountFlow = async (data: {
       await addMemberToWorkspace(user.id!.toString(), workspace.id!, memberRepository, session);
     }
 
-    await registerAccount(provider, providerId, user.id!.toString(), accountRepository, picture, session); // Converte para string aqui
+    await registerAccount(provider, providerId, user.id!.toString(), accountRepository, picture, session); 
 
     await session.commitTransaction();
     session.endSession();

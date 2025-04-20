@@ -181,7 +181,6 @@ export const SettingsWorkspaceForm = ({ onCancel, initialValues }: SettingsWorks
         </CardContent>
       </Card>
 
-      {/* Seção de Delete Workspace */}
       <Card className="w-ful h-full border-none shadow-none">
         <CardContent className="p-7">
           <div className="flex flex-col">

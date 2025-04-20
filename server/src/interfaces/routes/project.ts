@@ -13,7 +13,7 @@ const projectRoute = Router();
 projectRoute.post('/workspace/:workspaceId/create', createProject);
 
 projectRoute.get('/workspace/:workspaceId/all', listProjects);
-projectRoute.get('/:id/workspace/:workspaceId', getProjectByIdInWorkspace);
+projectRoute.get('/:projectId/workspace/:workspaceId', getProjectByIdInWorkspace);
 projectRoute.get('/:id/workspace/:workspaceId/analytics', getAnalyticsFromProjects);
 
 projectRoute.put('/:id/workspace/:workspaceId/update', updateProjectDetails);

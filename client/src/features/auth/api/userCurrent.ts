@@ -1,4 +1,3 @@
-// src/features/auth/hooks/useCurrentUser.ts
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/contexts/auth/authStore";

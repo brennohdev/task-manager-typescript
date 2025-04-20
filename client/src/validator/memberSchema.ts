@@ -24,5 +24,4 @@ export const getAllMembersResponseSchema = z.object({
   }),
 });
 
-// Inferência de tipo, caso queira usar nos hooks ou funções:
 export type GetAllMembersResponse = z.infer<typeof getAllMembersResponseSchema>;

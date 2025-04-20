@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation'; // <-- este é o hook certo pra Client Components
+import { useRouter } from 'next/navigation'; 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,7 @@ import { useAuthStore } from '@/contexts/auth/authStore';
 import Link from 'next/link';
 
 export const LoginCard = () => {
-  const router = useRouter(); // <- aqui agora funciona corretamente
+  const router = useRouter(); 
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -32,7 +32,7 @@ export const LoginCard = () => {
       onSuccess: (data) => {
         setUser(data.user);
         console.log('Login successful', data);
-        router.push('/'); // <- agora vai redirecionar certinho
+        router.push('/'); 
       },
       onError: (error) => {
         console.error('Error logging in', error);

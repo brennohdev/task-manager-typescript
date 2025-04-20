@@ -13,7 +13,7 @@ export const useLogout = () => {
     mutationFn: logout,
     onSuccess: () => {
       setUser(null);
-      queryClient.invalidateQueries(); // Força o recarregamento dos dados
+      queryClient.invalidateQueries();
       queryClient.clear();
       toast.success('Logged out!');
 

@@ -13,10 +13,8 @@ export const useDeleteWorkspace = () => {
     onSuccess: async ({ message }) => {
       toast.success(message);
 
-      // Atualiza cache local
       await queryClient.invalidateQueries({ queryKey: ['workspaces'] });
 
-      // Recupera nova lista de workspaces diretamente do server
       const updatedWorkspaces = await getUserWorkspaces();
 
       if (!updatedWorkspaces || updatedWorkspaces.length === 0) {

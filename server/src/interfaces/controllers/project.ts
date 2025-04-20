@@ -61,7 +61,7 @@ export const listProjects = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getProjectByIdInWorkspace = asyncHandler(async (req: Request, res: Response) => {
-  const projectId = projectIdSchema.parse(req.params.id);
+  const projectId = projectIdSchema.parse(req.params.projectId);
   const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
   const userId = req.user!.id;
 
