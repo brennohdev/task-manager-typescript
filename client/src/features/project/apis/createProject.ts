@@ -7,7 +7,6 @@ export const createProject = async (
   projectData: z.infer<typeof createProjectSchema>,
 ) => {
   const response = await api.post(`/project/workspace/${workspaceId}/create`, projectData);
-  console.log('Response:', response.data);
   const parsed = createProjectResponseSchema.parse(response.data);
 
   return parsed.project;

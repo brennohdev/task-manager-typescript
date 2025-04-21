@@ -14,10 +14,11 @@ export const createProjectSchema = z.object({
 
 export const updateProjectSchema = z
   .object({
-    name: nameSchema.optional(), 
+    name: nameSchema.optional(),
     emoji: emojiSchema,
     description: descriptionSchema,
   })
-  .refine((data) => data.name || data.emoji || data.description, {
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided',
   });

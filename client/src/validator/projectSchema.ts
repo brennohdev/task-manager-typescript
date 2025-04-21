@@ -45,6 +45,13 @@ export const createProjectResponseSchema = z.object({
   project: projectSchema,
 });
 
+export const updateProjectResponseSchema = z.object({
+  message: z.string(),
+  updatedProject: z.object({
+    project: projectSchema,
+  }),
+});
+
 export const getProjectsResponseSchema = z.object({
   message: z.string(),
   projects: z.array(projectSchema),
