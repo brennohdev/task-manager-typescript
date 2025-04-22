@@ -40,6 +40,8 @@ export const updateTaskController = asyncHandler(async (req: Request, res: Respo
   const workspaceId = req.params.workspaceId;
   const taskId = req.params.taskId;
   const userId = req.user!.id;
+  const projectId = req.params.projectId; // Adicione o log para garantir que os valores estão corretos
+  console.log('Received params:', { taskId, projectId, workspaceId });
 
   // Verifica se o usuário tem acesso ao workspace
   await getAccessLevelInWorkspace(userId, workspaceId);
@@ -91,10 +93,15 @@ export const getAllTasksInWorkspaceController = asyncHandler(
 );
 
 export const getTaskByIdController = asyncHandler(async (req: Request, res: Response) => {
+  console.log('req.params:', req.params);
   const userId = req.user!.id;
   const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
   const projectId = projectIdSchema.parse(req.params.projectId);
-  const taskId = taskIdSchema.parse(req.params.id);
+  const taskId = taskIdSchema.parse(req.params.taskId);
+  console.log({
+    userId: req.user?.id,
+    workspaceId: req.params.workspaceId,
+  });
 
   await getAccessLevelInWorkspace(userId, workspaceId);
 

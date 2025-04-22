@@ -56,7 +56,7 @@ export class TaskRepository implements ITaskRepository {
       _id: taskId,
       project: projectId,
       workspace: workspaceId,
-    }).populate("assignedTo", "_id name profilePicture -password");
+    }).populate("assignedTo", "_id name profilePicture ");
   
     return task ? this.toEntity(task) : null;
   }

@@ -8,7 +8,7 @@ export const useGetTasks = (
   pagination = { pageSize: 10, pageNumber: 1 },
 ) => {
   return useQuery({
-    queryKey: ['tasks', workspaceId, projectId, filters, pagination],
+    queryKey: ['tasks', workspaceId, projectId],
     queryFn: () => getTasks(workspaceId, projectId, filters, pagination),
     enabled: !!workspaceId && !!projectId,
   });

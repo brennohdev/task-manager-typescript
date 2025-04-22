@@ -13,6 +13,13 @@ export const assignedToGetAllTasksSchema = z
   .nullable()
   .optional();
 
+  
+export const userPreviewSchema = z.object({
+  _id: z.string(),
+  name: z.string(),
+  profilePicture: z.string().nullable(),
+});
+
 export const dueDateSchema = z
   .string()
   .trim()
@@ -30,7 +37,7 @@ export const createTaskSchema = z.object({
   dueDate: dueDateSchema,
 });
 
-export const updateTaskSchema = createTaskSchema;
+export const updateTaskSchema = createTaskSchema.partial();
 
 export const taskResponseSchema = z.object({
   taskCode: z.string(),
@@ -48,6 +55,25 @@ export const taskResponseSchema = z.object({
   id: z.string(),
 });
 
+export const taskUpdateResponseSchema = z.object({
+  message: z.string(),
+  task: z.object({
+    taskCode: z.string(),
+    title: z.string(),
+    description: z.string().nullable(),
+    project: z.string(),
+    workspace: z.string(),
+    status: TaskStatusEnumSchema,
+    priority: TaskPriorityEnumSchema,
+    assignedTo: z.string().nullable(),
+    createdBy: z.string(),
+    dueDate: z.string().nullable(), // ISO date
+    createdAt: z.string(), // ISO date
+    updatedAt: z.string(), // ISO date
+    id: z.string(),
+  }),
+});
+
 export const taskResponseToGetAllTasksSchema = z.object({
   taskCode: z.string(),
   title: z.string(),
@@ -60,12 +86,31 @@ export const taskResponseToGetAllTasksSchema = z.object({
   workspace: z.string(),
   status: TaskStatusEnumSchema,
   priority: TaskPriorityEnumSchema,
-  assignedTo: assignedToGetAllTasksSchema, 
+  assignedTo: assignedToGetAllTasksSchema,
   createdBy: z.string(),
   dueDate: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
   id: z.string(),
+});
+
+export const getTaskByIdResponseSchema = z.object({
+  message: z.string(),
+  task: z.object({
+    taskCode: z.string(),
+    title: z.string(),
+    description: z.string().nullable(),
+    project: z.string(),
+    workspace: z.string(),
+    status: TaskStatusEnumSchema,
+    priority: TaskPriorityEnumSchema,
+    assignedTo: userPreviewSchema.nullable(), // Se pode ser nulo
+    createdBy: z.string(),
+    dueDate: z.string().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    id: z.string(),
+  }),
 });
 
 export const getAllTasksResponseSchema = z.object({

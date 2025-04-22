@@ -14,6 +14,7 @@ import { DataFilters } from './dataFilters';
 import { useTaskFilters } from '../hook/useTaskFilters';
 import { DataTable } from './dataTable';
 import { columns } from './columns';
+import { DataCalendar } from './calendar/dataCalendar';
 
 export const TaskViewSwitcher = () => {
   const [view, setView] = useQueryState('task-view', {
@@ -80,7 +81,7 @@ export const TaskViewSwitcher = () => {
               <DataTable columns={columns} data={data?.tasks ?? []} />
             </TabsContent>
             <TabsContent value="calendar" className="mt-0">
-              {JSON.stringify(tasks)}
+              <DataCalendar data={data?.tasks ?? []} />
             </TabsContent>
             <TabsContent value="kanban" className="mt-0">
               {JSON.stringify(tasks)}
