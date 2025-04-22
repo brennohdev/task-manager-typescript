@@ -9,4 +9,7 @@ export interface ITaskRepository {
   update(task: Task): Promise<void>;
   delete(id: Types.ObjectId): Promise<void>;
   deleteManyByProject(projectId: string): Promise<void>;
+
+  findByIdWithDetails(taskId: string, projectId: string, workspaceId: string): Promise<Task | null>;
 }
+

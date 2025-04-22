@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { asyncHandler } from '../../infrastructure/middlewares/asyncHandler';
 import { createTaskSchema, taskIdSchema, updateTaskSchema } from '../validations/task';
 import { projectIdSchema, updateProjectSchema } from '../validations/project';
@@ -12,6 +12,8 @@ import {
   updateTaskService,
 } from '../../application/services/task';
 import { HTTPSTATUS } from '../../infrastructure/config/http';
+import { ZodError } from 'zod';
+import { Types } from 'mongoose';
 
 export const createTaskController = asyncHandler(async (req: Request, res: Response) => {
   const body = createTaskSchema.parse(req.body);
@@ -35,16 +37,25 @@ export const createTaskController = asyncHandler(async (req: Request, res: Respo
 });
 
 export const updateTaskController = asyncHandler(async (req: Request, res: Response) => {
+  const workspaceId = req.params.workspaceId;
+  const taskId = req.params.taskId;
+  const userId = req.user!.id;
+
+  // Verifica se o usuário tem acesso ao workspace
+  await getAccessLevelInWorkspace(userId, workspaceId);
+
+  // Validação do corpo da requisição
   const body = updateTaskSchema.parse(req.body);
 
-  const taskId = taskIdSchema.parse(req.params.id);
-  const projectId = projectIdSchema.parse(req.params.projectId);
-  const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+  // Chama o serviço de atualização de tarefa
+  const updatedTask = await updateTaskService({
+    taskId,
+    ...body,
+  });
 
-  const { updatedTask } = await updateTaskService(workspaceId, projectId, taskId, body);
-
+  // Retorna a resposta com a tarefa atualizada
   return res.status(HTTPSTATUS.OK).json({
-    message: 'Task updated successfully',
+    message: 'Task updated successfully.',
     task: updatedTask,
   });
 });
@@ -98,7 +109,7 @@ export const getTaskByIdController = asyncHandler(async (req: Request, res: Resp
 export const deleteTaskController = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
-  const taskId = taskIdSchema.parse(req.params.id);
+  const taskId = taskIdSchema.parse(req.params.taskId);
 
   await getAccessLevelInWorkspace(userId, workspaceId);
 

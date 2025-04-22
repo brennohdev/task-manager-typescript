@@ -3,9 +3,14 @@
 import { taskResponseToGetAllTasksSchema } from '@/validator/taskSchema';
 import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MemberAvatar } from '@/features/member/components/memberAvatar';
+import { TaskDate } from './taskDate';
+import { Badge } from '@/components/ui/badge';
+import { snakeCaseToTitleCase } from '@/util/snakeCaseToTitleCase';
+import { TaskPriorityEnumType, TaskStatusEnumType } from '@/domain/enums/taskEnums';
+import { TaskActions } from './taskActions';
 
 type Task = z.infer<typeof taskResponseToGetAllTasksSchema>;
 
@@ -18,7 +23,7 @@ export const columns: ColumnDef<Task>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Task Title
+           Title
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -37,7 +42,7 @@ export const columns: ColumnDef<Task>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Task Status
+           Status
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -45,41 +50,61 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
 
-      return (
-        <div className="flex items-center gap-x-2 text-sm font-medium">
-          <p className="line-clamp-1">{status}</p>
-        </div>
-      );
+      return <Badge variant={status as TaskStatusEnumType}>{snakeCaseToTitleCase(status)}</Badge>;
     },
   },
   {
-    accessorKey: 'assignedTo',
+    accessorKey: 'priority',
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Member Assigned
+           Priority
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const assignedTo = row.original.assignedTo;
+      const priority = row.original.priority;
 
       return (
-        <div className="flex items-center gap-x-2 text-sm font-medium">
-          {/* Adicionando o avatar do membro */}
-          <MemberAvatar
-            className="size-6"
-            fallbackClassName="text-xs"
-            name={assignedTo?.name ?? 'No name'}
-            profilePicture={assignedTo?.profilePicture ?? null} // Passando a imagem do perfil, caso exista
-          />
-          {/* Nome do membro */}
-          <p className="line-clamp-1">{assignedTo?.name ?? 'No assigned member'}</p>
-        </div>
+        <Badge variant={priority as TaskPriorityEnumType}>{snakeCaseToTitleCase(priority)}</Badge>
+      );
+    },
+  },
+  {
+    accessorKey: 'dueDate',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Due Date
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const dueDate = row.original.dueDate;
+
+      return <TaskDate value={dueDate!} />;
+    },
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      const id = row.original.id;
+      const projectId = row.original.project._id;
+
+      return (
+        <TaskActions id={id} projectId={projectId}>
+          <Button variant="ghost" className="size-8 p-0">
+            <MoreVertical className="size-4" />
+          </Button>
+        </TaskActions>
       );
     },
   },

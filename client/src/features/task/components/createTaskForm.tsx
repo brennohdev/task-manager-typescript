@@ -69,7 +69,7 @@ export const CreateTaskForm = ({
     };
 
     console.log(adjustedValues); // Verifique os valores ajustados antes de enviar
-
+    console.log('Assigned To:', formValues.assignedTo);
     // Envia os dados ajustados
     mutate(adjustedValues);
   };

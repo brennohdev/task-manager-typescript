@@ -21,6 +21,7 @@ import { ProjectRepository } from '../../infrastructure/database/repositories/pr
 import { validateProjectBelongsToWorkspace } from '../usecases/project/validateProjectBelongsToWorkspace';
 import { getTaskByIdWithDetailsUseCase } from '../usecases/task/getTaskById';
 import { deleteTask } from '../usecases/task/deleteTask';
+import { ITaskRepository } from '../../domain/repositories/task';
 
 interface CreateTaskInput {
   workspace: string;
@@ -86,6 +87,58 @@ export const createTaskService = async (input: CreateTaskInput) => {
 
     await session.commitTransaction();
     return createdTask;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
+interface UpdateTaskInput {
+  taskId: string;
+  title?: string;
+  description?: string | null;
+  priority?: keyof typeof TaskPriorityEnum;
+  status?: keyof typeof TaskStatusEnum;
+  assignedTo?: string | null;
+  dueDate?: string;
+}
+
+export const updateTaskService = async (input: UpdateTaskInput) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const taskRepository = new TaskRepository();
+    const { taskId, title, description, priority, status, assignedTo, dueDate } = input;
+
+    // Verifica se a tarefa existe
+    const existingTask = await taskRepository.findById(new Types.ObjectId(taskId), session);
+    if (!existingTask) {
+      throw new NotFoundException('Task not found.');
+    }
+
+    // Atualiza os campos da tarefa
+    const updatedTask = new Task(
+      existingTask.taskCode,
+      title ?? existingTask.title,
+      description ?? existingTask.description,
+      existingTask.project,
+      existingTask.workspace,
+      status ?? existingTask.status,
+      priority ?? existingTask.priority,
+      assignedTo ? new Types.ObjectId(assignedTo) : existingTask.assignedTo,
+      existingTask.createdBy,
+      dueDate ? new Date(dueDate) : existingTask.dueDate,
+      existingTask.createdAt,
+      new Date(), // Atualiza a data de modificação
+      existingTask.id,
+    );
+
+    await taskRepository.update(updatedTask, session);
+
+    await session.commitTransaction();
+    return updatedTask;
   } catch (error) {
     await session.abortTransaction();
     throw error;
@@ -190,51 +243,6 @@ export const getTaskByIdService = async (
   return task;
 };
 
-export const updateTaskService = async (
-  workspaceId: string,
-  projectId: string,
-  taskId: string,
-  body: {
-    title: string;
-    description?: string;
-    priority: string;
-    status: string;
-    assignedTo?: string | null;
-    dueDate?: string;
-  },
-) => {
-  const project = await ProjectModel.findById(projectId);
-  const memberRepository = new MemberRepository();
-
-  if (!project || project.workspace.toString() !== workspaceId.toString()) {
-    throw new NotFoundException('Project not found or does not belong to this workspace');
-  }
-
-  const task = await TaskModel.findById(taskId);
-
-  if (!task || task.project.toString() !== projectId.toString()) {
-    throw new NotFoundException('Task not found or does not belong to this project');
-  }
-
-  const member = await memberRepository.findMemberByWorkspace(workspaceId);
-  if (!member) {
-    throw new BadRequestException('User is not allowed to update tasks in this workspace.');
-  }
-
-  const updatedTask = await TaskModel.findByIdAndUpdate(
-    taskId,
-    {
-      ...body,
-    },
-    { new: true },
-  );
-
-  if (!updatedTask) {
-    throw new BadRequestException('Failed to update task');
-  }
-
-  return { updatedTask };
-};
 /* 
     Delete Task by ID
 1. Delete a task permanently from the workspace
