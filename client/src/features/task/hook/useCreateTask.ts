@@ -1,14 +1,18 @@
+import { z } from 'zod';
+import { createTaskSchema } from '@/validator/taskSchema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { createTask } from '../api/createTask';
 import { toast } from 'sonner';
+
+type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
 export const useCreateTask = (projectId: string, workspaceId: string) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
-    mutationFn: () => createTask(projectId, workspaceId),
+    mutationFn: (data: CreateTaskInput) => createTask(projectId, workspaceId, data),
     onSuccess: (task) => {
       ['tasks', 'projects', 'project'].forEach((key) => {
         queryClient.invalidateQueries({

@@ -67,10 +67,6 @@ export const createTaskService = async (input: CreateTaskInput) => {
 
     await validateProject(project, workspace, session);
 
-    if (assignedTo) {
-      await validateMember(assignedTo, workspace, session);
-    }
-
     const generatedCode = generateTaskCodeUseCase();
 
     const taskEntity = new Task(

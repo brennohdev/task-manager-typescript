@@ -27,19 +27,26 @@ export const Projects = () => {
   const { open } = useCreateProjectModal();
   const { data, isLoading, isError, error } = useGetProjects(workspaceId);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div className="text-sm text-muted-foreground">Loading...</div>;
+  if (isError) return <div className="text-sm text-red-500">Error: {error.message}</div>;
 
   return (
-    <div className="flex flex-col gap-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase text-blue-950 font-semibold">Projects</p>
+    <div className="flex flex-col gap-y-1">
+      {/* Title and Add Button */}
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-[10px] uppercase tracking-wide text-gray-600 font-medium">Projects</p>
         <RiAddCircleFill
           onClick={open}
-          className="size-5 text-blue-600 cursor-pointer hover:opacity-75 transition"
+          className="size-4 text-c cursor-pointer hover:opacity-80 transition"
         />
       </div>
-      {data && data.length === 0 && <div>No projects available</div>}
+
+      {/* Empty State */}
+      {data && data.length === 0 && (
+        <p className="text-xs text-gray-500">No projects yet.</p>
+      )}
+
+      {/* Projects List */}
       {data?.map((project: Project) => {
         const href = `/workspace/${workspaceId}/project/${project.id}`;
         const isActive = pathname === href;
@@ -48,9 +55,10 @@ export const Projects = () => {
           <Link href={href} key={project.id}>
             <div
               className={cn(
-                'flex items-center gap-2.5 p-2.5 rounded-md hover:opacity-90 hover:bg-slate-200 transition cursor-pointer text-blue-950',
-                isActive && 'bg-slate-300 shadow-sm hover:opacity-100 text-primary',
+                'flex items-center gap-2 p-2 rounded-md text-sm text-gray-800 hover:bg-gray-200 transition',
+                isActive && 'bg-gray-300 font-semibold text-cyan-700 shadow-inner'
               )}
+              title={project.name}
             >
               <span className="truncate">{project.emoji}</span>
               <span className="truncate">{project.name}</span>

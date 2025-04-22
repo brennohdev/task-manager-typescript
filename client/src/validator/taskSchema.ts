@@ -4,6 +4,14 @@ import { z } from 'zod';
 export const titleSchema = z.string().trim().min(1).max(255);
 export const descriptionSchema = z.string().trim().optional();
 export const assignedToSchema = z.string().trim().min(1).nullable().optional();
+export const assignedToGetAllTasksSchema = z
+  .object({
+    _id: z.string(),
+    name: z.string(),
+    profilePicture: z.string().nullable(),
+  })
+  .nullable()
+  .optional();
 
 export const dueDateSchema = z
   .string()
@@ -38,6 +46,40 @@ export const taskResponseSchema = z.object({
   createdAt: z.string(), // ISO date
   updatedAt: z.string(), // ISO date
   id: z.string(),
+});
+
+export const taskResponseToGetAllTasksSchema = z.object({
+  taskCode: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  project: z.object({
+    _id: z.string(),
+    name: z.string(),
+    emoji: z.string(),
+  }),
+  workspace: z.string(),
+  status: TaskStatusEnumSchema,
+  priority: TaskPriorityEnumSchema,
+  assignedTo: assignedToGetAllTasksSchema, 
+  createdBy: z.string(),
+  dueDate: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  id: z.string(),
+});
+
+export const getAllTasksResponseSchema = z.object({
+  message: z.string(),
+  result: z.object({
+    tasks: z.array(taskResponseToGetAllTasksSchema),
+    pagination: z.object({
+      pageSize: z.number(),
+      pageNumber: z.number(),
+      totalCount: z.number(),
+      totalPages: z.number(),
+      skip: z.number(),
+    }),
+  }),
 });
 
 export const createTaskResponseSchema = z.object({

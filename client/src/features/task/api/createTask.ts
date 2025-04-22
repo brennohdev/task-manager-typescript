@@ -1,9 +1,21 @@
+import { z } from 'zod';
+import { createTaskSchema } from '@/validator/taskSchema';
 import { api } from '@/lib/axios';
-import { createTaskResponseSchema } from '@/validator/taskSchema';
 
-export const createTask = async (projectId: string, workspaceId: string) => {
-  const response = await api.post(`task/project/${projectId}/workspace/${workspaceId}/create`);
-  const parsed = createTaskResponseSchema.parse(response.data);
+type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
-  return parsed.task;
+export const createTask = async (
+  projectId: string,
+  workspaceId: string,
+  data: z.infer<typeof createTaskSchema>,
+) => {
+  console.log('data to be validated:', data);
+  const parsedData = createTaskSchema.parse(data); // Valida e aplica refinamentos do schema
+
+  const response = await api.post(
+    `/task/project/${projectId}/workspace/${workspaceId}/create`,
+    parsedData,
+  );
+
+  return response.data.task;
 };
