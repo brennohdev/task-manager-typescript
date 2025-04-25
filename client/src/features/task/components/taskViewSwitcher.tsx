@@ -37,6 +37,7 @@ export const TaskViewSwitcher = () => {
     assignedTo,
     dueDate,
     priority,
+    projectId,
   });
   const tasks = data?.tasks;
   const pagination = data?.pagination;
@@ -58,10 +59,6 @@ export const TaskViewSwitcher = () => {
               <Calendar1Icon className="size-4 mr-2" />
               Calendar
             </TabsTrigger>
-            <TabsTrigger className="h-8 w-full lg:w-auto" value="kanban">
-              <KanbanIcon className="size-4 mr-2" />
-              Kanban
-            </TabsTrigger>
           </TabsList>
           <Button onClick={open} variant="primary" size="sm" className="w-full lg:w-auto">
             <PlusIcon className="size-4 mr-2" />
@@ -80,11 +77,8 @@ export const TaskViewSwitcher = () => {
             <TabsContent value="table" className="mt-0">
               <DataTable columns={columns} data={data?.tasks ?? []} />
             </TabsContent>
-            <TabsContent value="calendar" className="mt-0">
+            <TabsContent value="calendar" className="mt-0 h-full pb-4">
               <DataCalendar data={data?.tasks ?? []} />
-            </TabsContent>
-            <TabsContent value="kanban" className="mt-0">
-              {JSON.stringify(tasks)}
             </TabsContent>
           </>
         )}

@@ -7,6 +7,6 @@ export const useTaskFilters = () => {
     priority: parseAsStringEnum(Object.values(TaskPriorityEnum)),
     assignedTo: parseAsString,
     projectId: parseAsString,
-    dueDate: parseAsStringEnum(['today', 'this_week', 'this_month', 'no_due_date']),
+    dueDate: parseAsString,
   });
 };

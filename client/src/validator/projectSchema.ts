@@ -33,7 +33,6 @@ export const projectSchemaForGetProject = z.object({
   updatedAt: z.string(),
 });
 
-
 export const createProjectSchema = z.object({
   emoji: emojiSchema,
   name: nameSchema,
@@ -71,3 +70,17 @@ export const getProjectByIdResponseSchema = z.object({
     project: projectSchemaForGetProject,
   }),
 });
+
+export const getAnalyticsFromProjectsResponse = z.object({
+  message: z.string(),
+  result: z.object({
+    analytics: z.object({
+      totalTasks: z.number(),
+      overdueTasks: z.number(),
+      completedTasks: z.number(),
+    }),
+  }),
+});
+
+export type GetAnalyticsFromProjectsResponse = z.infer<typeof getAnalyticsFromProjectsResponse>;
+

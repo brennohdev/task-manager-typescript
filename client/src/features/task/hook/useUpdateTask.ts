@@ -15,8 +15,10 @@ export const useUpdateTask = (taskId: string, workspaceId: string, projectId: st
     onSuccess: () => {
       toast.success('The task was successfully updated!');
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId, workspaceId] });
-      queryClient.invalidateQueries({ queryKey: ['task', projectId, workspaceId] });
-      router.push(`/workspace/${projectId}/project/${workspaceId}`);
+      queryClient.invalidateQueries({ queryKey: ['project-analytics', workspaceId, projectId] });
+      queryClient.invalidateQueries({ queryKey: ['workspace-analytics', projectId] });
+      queryClient.refetchQueries({ queryKey: ['project-analytics', projectId, workspaceId] });
+      router.refresh();
 
       // Forçar refetch da query de tarefas após a invalidação
       queryClient.refetchQueries({ queryKey: ['tasks', workspaceId, projectId] });

@@ -14,11 +14,13 @@ export const useCreateTask = (projectId: string, workspaceId: string) => {
   return useMutation({
     mutationFn: (data: CreateTaskInput) => createTask(projectId, workspaceId, data),
     onSuccess: (task) => {
-      ['tasks', 'projects', 'project'].forEach((key) => {
+      ['tasks', 'projects', 'project', 'project-analytics'].forEach((key) => {
         queryClient.invalidateQueries({
           queryKey: [key, workspaceId, projectId],
         });
       });
+      queryClient.refetchQueries({ queryKey: ['project-analytics', workspaceId, projectId] });
+      queryClient.refetchQueries({ queryKey: ['workspace-analytics', workspaceId] });
       toast.success('Task successfully created!');
       router.push(`/workspace/${task.workspace}/project/${task.project}`);
       router.refresh();

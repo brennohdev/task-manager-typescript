@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { getTasks } from '../api/getAllProjects';
+import { getTasks } from '../api/getAllTasks';
 
 export const useGetTasks = (
   workspaceId: string,
-  projectId: string,
+  projectId?: string,
   filters = {},
   pagination = { pageSize: 10, pageNumber: 1 },
 ) => {
   return useQuery({
-    queryKey: ['tasks', workspaceId, projectId],
+    queryKey: ['tasks', workspaceId, projectId, filters, pagination],
     queryFn: () => getTasks(workspaceId, projectId, filters, pagination),
-    enabled: !!workspaceId && !!projectId,
+    enabled: !!workspaceId,
   });
 };

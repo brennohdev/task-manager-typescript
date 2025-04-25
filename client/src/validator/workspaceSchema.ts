@@ -43,6 +43,17 @@ export const workspaceListResponseSchema = z.object({
   workspaces: z.array(workspaceSchema),
 });
 
+export const getWorkspaceAnalyticsResponseSchema = z.object({
+  message: z.string(),
+  workspaceAnalytics: z.object({
+    analytics: z.object({
+      countTotalTasks: z.number(),
+      countOverdueTasks: z.number(),
+      countCompletedTasks: z.number(),
+    }),
+  }),
+});
+
 export type Workspace = z.infer<typeof workspaceSchema>;
 export type CreateWorkspacePayload = z.infer<typeof createWorkspaceSchema>;
 export type CreateWorkspaceResponse = z.infer<typeof workspaceResponseSchema>;

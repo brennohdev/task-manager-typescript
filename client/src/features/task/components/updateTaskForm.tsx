@@ -37,6 +37,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useCreateTask } from '../hook/useCreateTask';
 import { useUpdateTask } from '../hook/useUpdateTask';
+import { useRouter } from 'next/navigation';
 
 type Task = z.infer<typeof taskUpdateResponseSchema>['task'];
 
@@ -59,6 +60,7 @@ export const UpdateTaskForm = ({
 }: UpdateTaskFormProps) => {
   const taskId = initialValues.id;
   const { mutate, isPending } = useUpdateTask(taskId, projectId, workspaceId);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof updateTaskSchema>>({
     resolver: zodResolver(updateTaskSchema),
@@ -80,6 +82,7 @@ export const UpdateTaskForm = ({
     console.log(adjustedValues);
     console.log('Assigned To:', formValues.assignedTo);
     mutate(adjustedValues);
+    router.refresh();
   };
 
   return (

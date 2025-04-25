@@ -188,11 +188,18 @@ export const getAllTasksService = async (
   }
 
   if (filters.dueDate) {
+    const date = new Date(filters.dueDate);
+    const startOfDay = new Date(date);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
     query.dueDate = {
-      $eq: new Date(filters.dueDate),
+      $gte: startOfDay,
+      $lte: endOfDay,
     };
   }
-  console.log('QUERY USADA:', query);
 
   const { pageSize, pageNumber } = pagination;
   const skip = (pageNumber - 1) * pageSize;

@@ -21,7 +21,7 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
 
-  const {open} = useUpdateTaskModal()
+  const { open } = useUpdateTaskModal();
 
   const [ConfirmDialog, confirm] = useConfirm(
     'Delete task',
@@ -38,11 +38,12 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
     mutate({
       taskId: id,
       workspaceId,
+      projectId,
     });
   };
 
   const onOpenTask = () => {
-    router.push(`/workspace/${workspaceId}/task/${id}`);
+    router.push(`/workspace/${workspaceId}/project/${projectId}/task/${id}`);
   };
 
   return (

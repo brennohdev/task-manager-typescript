@@ -22,6 +22,7 @@ import {
 } from '@/domain/enums/taskEnums';
 import { FcStatistics } from 'react-icons/fc';
 import { useTaskFilters } from '../hook/useTaskFilters';
+import { DatePicker } from '@/components/dataPicker';
 
 interface DataFiltersProps {
   hideProjectFilter?: boolean;
@@ -72,7 +73,7 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
   if (isLoading) return null;
 
   return (
-    <div className="flex flex-row w-full lg:flex-row gap-2">
+    <div className="flex flex-row justify-center w-full lg:flex-row gap-2">
       <Select defaultValue={status ?? undefined} onValueChange={(value) => onStatusChange(value)}>
         <SelectTrigger className="w-full lg:w-auto h-8">
           <div className="flex items-center pr-2">
@@ -128,6 +129,14 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
           ))}
         </SelectContent>
       </Select>
+      <DatePicker
+        placeholder="Due Date"
+        classname="h-8 w-full lg:w-auto"
+        value={dueDate ? new Date(dueDate) : undefined}
+        onChange={(date) => {
+          setFilters({ dueDate: date ? date.toISOString() : null });
+        }}
+      />
     </div>
   );
 };

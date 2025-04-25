@@ -9,7 +9,7 @@ import { useWorkspaceId } from '@/features/workspace/hooks/useWorkspaceId';
 
 const routes = [
   {
-    label: 'Home',
+    label: 'Dashboard',
     href: '',
     icon: GoHome,
     activeIcon: GoHomeFill,
@@ -49,11 +49,11 @@ export const Navigation = () => {
           <Link key={item.href} href={fullHref}>
             <div
               className={cn(
-                'flex items-center gap-2.5 p-2.5 rounded-md font-medium hover:bg-slate-200 transition text-blue-950',
+                'flex items-center gap-2.5 p-2.5 rounded-md font-medium hover:bg-slate-200 transition text-black',
                 isActive && 'bg-slate-300 shadow-lg hover:opacity-100 text-primary',
               )}
             >
-              <Icon className="size-5 text-blue-600" />
+              <Icon className="size-5 text-blue-700" />
               {item.label}
             </div>
           </Link>

@@ -62,15 +62,15 @@ export const CreateTaskForm = ({
   });
 
   const onSubmit = (formValues: z.infer<typeof createTaskSchema>) => {
-    // Ajusta o dueDate
+    const localDate = formValues.dueDate
+      ? new Date(formValues.dueDate + 'T12:00:00') // Aqui é o segredo
+      : undefined;
+
     const adjustedValues = {
       ...formValues,
-      dueDate: formValues.dueDate ? new Date(formValues.dueDate).toISOString() : undefined,
+      dueDate: localDate ? localDate.toISOString() : undefined,
     };
 
-    console.log(adjustedValues); // Verifique os valores ajustados antes de enviar
-    console.log('Assigned To:', formValues.assignedTo);
-    // Envia os dados ajustados
     mutate(adjustedValues);
   };
 

@@ -8,15 +8,26 @@ export const useDeleteTask = () => {
   const router = useRouter();
 
   const mutation = useMutation({
-    mutationFn: ({ taskId, workspaceId }: { taskId: string; workspaceId: string }) =>
-      deleteTask(taskId, workspaceId),
+    mutationFn: ({
+      taskId,
+      workspaceId,
+    }: {
+      taskId: string;
+      workspaceId: string;
+      projectId: string;
+    }) => deleteTask(taskId, workspaceId),
 
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      const { workspaceId, projectId } = variables;
+
       toast.success(data.message);
 
-      router.refresh();
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['task'] });
+      queryClient.invalidateQueries({ queryKey: ['project-analytics', workspaceId, projectId] });
+      queryClient.invalidateQueries({ queryKey: ['workspace-analytics', workspaceId] });
+      router.push(`/workspace/${workspaceId}/project/${projectId}`);
+      router.refresh();
     },
 
     onError: (error: any) => {
