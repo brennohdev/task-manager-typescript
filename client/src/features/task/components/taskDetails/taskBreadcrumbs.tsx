@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { useProjectId } from '@/features/project/hooks/useProjectId';
 import { useDeleteTask } from '@/features/task/hook/useDeleteTask';
 import { useWorkspaceId } from '@/features/workspace/hooks/useWorkspaceId';
 import { useConfirm } from '@/hook/modals/useConfirm';
@@ -21,6 +22,7 @@ interface TaskBreadcrumbsProps {
 export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
+  const projectId = useProjectId();
   const taskId = task.id;
 
   const { mutate, isPending } = useDeleteTask();
@@ -35,7 +37,7 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
     if (!ok) return;
 
     mutate(
-      { taskId, workspaceId },
+      { taskId, workspaceId, projectId },
       {
         onSuccess: () => {
           toast.success('Task successfully deleted.');
