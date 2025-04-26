@@ -25,7 +25,7 @@ export const TaskViewSwitcher = () => {
   const urlProjectId = pathname.split('/').pop();
   const workspaceId = useWorkspaceId();
 
-  const [{ status, assignedTo, projectId, dueDate, priority }] = useTaskFilters();
+  const [{ status, assignedTo, dueDate, priority }] = useTaskFilters();
 
   if (!urlProjectId) {
     throw new Error('Project not found.');
@@ -37,7 +37,6 @@ export const TaskViewSwitcher = () => {
     assignedTo,
     dueDate,
     priority,
-    projectId,
   });
   const tasks = data?.tasks;
   const pagination = data?.pagination;

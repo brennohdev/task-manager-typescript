@@ -4,7 +4,6 @@
     "module": "commonjs",
     "rootDir": "./src",
     "typeRoots": ["./node_modules/@types", "./src/@types"],
-    "types": ["jest"], // Especificando que tipos do Jest são necessários
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
