@@ -27,7 +27,6 @@ export const useCreateTask = (projectId: string, workspaceId: string) => {
     },
     onError: (error) => {
       toast.error('Error creating task.');
-      console.error(error);
     },
   });
 };

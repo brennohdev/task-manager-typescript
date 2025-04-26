@@ -20,7 +20,7 @@ export const useUpdateTask = (taskId: string, workspaceId: string, projectId: st
       queryClient.refetchQueries({ queryKey: ['project-analytics', projectId, workspaceId] });
       router.refresh();
 
-      // Forçar refetch da query de tarefas após a invalidação
+      
       queryClient.refetchQueries({ queryKey: ['tasks', workspaceId, projectId] });
     },
 

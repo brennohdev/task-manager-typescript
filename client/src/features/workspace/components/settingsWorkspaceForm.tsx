@@ -140,7 +140,6 @@ export const SettingsWorkspaceForm = ({ onCancel, initialValues }: SettingsWorks
         </CardContent>
       </Card>
 
-      {/* Seção de Invite Link */}
       <Card className="w-ful h-full border-none shadow-none">
         <CardContent className="p-7">
           <div className="flex flex-col">
@@ -160,7 +159,6 @@ export const SettingsWorkspaceForm = ({ onCancel, initialValues }: SettingsWorks
         </CardContent>
       </Card>
 
-      {/* Seção de Invite Code */}
       <Card className="w-ful h-full border-none shadow-none">
         <CardContent className="p-7">
           <div className="flex flex-col">

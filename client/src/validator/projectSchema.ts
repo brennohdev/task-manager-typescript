@@ -19,9 +19,9 @@ export const projectSchema = z.object({
 });
 
 export const projectSchemaForGetProject = z.object({
-  _id: z.string(), // <- pega como vem do backend
+  _id: z.string(), 
   name: z.string(),
-  description: z.string().nullable().or(z.string()), // previne erro se vier como string vazia
+  description: z.string().nullable().or(z.string()), 
   emoji: z.string().nullable().or(z.string()),
   workspace: z.string(),
   createdBy: z.object({

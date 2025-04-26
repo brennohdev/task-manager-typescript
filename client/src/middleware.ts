@@ -23,5 +23,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/:path*', // protege todas as rotas
+  matcher: '/:path*', 
 };

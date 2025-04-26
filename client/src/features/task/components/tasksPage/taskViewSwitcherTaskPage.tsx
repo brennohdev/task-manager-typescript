@@ -25,7 +25,7 @@ export const TaskViewSwitcherTaskPage = () => {
   const urlProjectId = undefined;
   const workspaceId = useWorkspaceId();
 
-  const [{ status, assignedTo, projectId, dueDate, priority }] = useTaskFilters();
+  const [{ status, assignedTo,  dueDate, priority }] = useTaskFilters();
 
   const { open } = useCreateTaskModal();
   const { data, isLoading, error } = useGetTasks(workspaceId, undefined, {

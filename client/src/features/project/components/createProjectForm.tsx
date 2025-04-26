@@ -42,10 +42,8 @@ export const CreateProjectForm = ({ workspaceId, onCancel }: CreateProjectFormPr
   });
 
   const onSubmit = (values: z.infer<typeof createProjectSchema>) => {
-    console.log('Form values before submit:', values);
-    // Verificar se o campo name está preenchido antes de enviar
     if (!values.name) {
-      return; // Não submeter caso o campo name esteja vazio
+      return; 
     }
 
     mutate(values);

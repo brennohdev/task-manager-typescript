@@ -10,7 +10,7 @@ export const createTask = async (
   data: z.infer<typeof createTaskSchema>,
 ) => {
   console.log('data to be validated:', data);
-  const parsedData = createTaskSchema.parse(data); // Valida e aplica refinamentos do schema
+  const parsedData = createTaskSchema.parse(data); 
 
   const response = await api.post(
     `/task/project/${projectId}/workspace/${workspaceId}/create`,

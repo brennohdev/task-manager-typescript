@@ -38,6 +38,7 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
     mutate({
       taskId: id,
       workspaceId,
+      projectId,
     });
   };
 

@@ -65,9 +65,9 @@ export const DataCalendar = ({ data }: DataCalendarProps) => {
   const [value, setValue] = useState(data[0]?.dueDate ? new Date(data[0].dueDate) : new Date());
 
   const events = data
-    .filter((task) => task.dueDate !== null) // garante que não é null
+    .filter((task) => task.dueDate !== null) 
     .map((task) => ({
-      start: new Date(task.dueDate!), // agora o TS sabe que não é null
+      start: new Date(task.dueDate!), 
       end: new Date(task.dueDate!),
       title: task.title,
       project: task.project.name,

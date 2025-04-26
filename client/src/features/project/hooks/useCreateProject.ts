@@ -13,7 +13,6 @@ export const useCreateProject = (workspaceId: string) => {
     mutationFn: (projectData: z.infer<typeof createProjectSchema>) =>
       createProject(workspaceId, projectData),
     onSuccess: (data) => {
-      console.log('Project created successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast.success('Project created successfully.');
 
@@ -21,7 +20,6 @@ export const useCreateProject = (workspaceId: string) => {
       router.refresh();
     },
     onError: (error) => {
-      console.error("Erro ao criar projeto:", error);
       toast.error('Failed to create project. Please, try again.');
     },
   });

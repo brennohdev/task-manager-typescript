@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Manager - Frontend
 
-## Getting Started
+Este é o frontend do **Task Manager**, uma aplicação web moderna para gerenciamento de tarefas em projetos e workspaces. Este frontend foi construído usando **Next.js**, **TypeScript**, **Tailwind CSS** e **ShadCN UI** para oferecer uma experiência rápida, acessível e elegante.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📍 Parte 1: Visão Geral
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Aplicação**: Gerenciamento de tarefas e projetos.
+- **Frontend**: Construído com Next.js, React, Tailwind CSS e ShadCN UI.
+- **Integração**: Comunicação com API REST (Express + MongoDB no backend).
+- **Deploy**: Otimizado para ambientes de produção como Vercel.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Parte 2: Tecnologias Utilizadas
 
-## Learn More
+- **Next.js**: Framework React focado em performance e SSR.
+- **TypeScript**: Tipagem estática para maior robustez no desenvolvimento.
+- **Tailwind CSS**: Utilitário CSS para construção de UI moderna e responsiva.
+- **ShadCN UI**: Biblioteca de componentes acessíveis e customizáveis.
+- **React Query**: Gerenciamento de estado assíncrono (requisições e cache).
+- **Axios**: Cliente HTTP para integração com APIs externas.
+- **Zod**: Validação de schemas no frontend.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Parte 3: Instalação e Execução Local
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Pré-requisitos
 
-## Deploy on Vercel
+- [Node.js](https://nodejs.org/) (v16+)
+- [Bun](https://bun.sh/) ou [npm](https://www.npmjs.com/)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Passos para iniciar
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone o repositório:
+
+   ```bash
+   git clone <URL do repositório>
+   cd <diretório-do-projeto>
+
+2. Instale as dependências: 
+
+    ```bash
+    bun install ou npm install
+
+
+3. Rode o servidor de desenvolvimento:
+
+    ```bash
+    bun dev ou npm run dev
+
+
+
+
+### Biblioteca | Motivo da Escolha
+    Next.js | Server-side rendering, performance, rotas simples.
+    Tailwind CSS | Estilização rápida e escalável.
+    ShadCN UI | Componentes acessíveis e personalizáveis.
+    React Query | Cache automático e gerenciamento inteligente de dados.
+    Axios | Mais controle sobre requisições HTTP e interceptadores fáceis.
+    Zod | Validação segura e tipada para dados recebidos ou enviados.

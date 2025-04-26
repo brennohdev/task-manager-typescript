@@ -2,8 +2,8 @@ import { cookies } from 'next/headers';
 import axios from 'axios';
 
 export const fetchUserWorkspaces = async () => {
-  const cookieStore = cookies(); // cookies do request
-  const session = cookieStore.get('session'); // ajusta o nome do cookie se for outro
+  const cookieStore = cookies(); 
+  const session = cookieStore.get('session'); 
 
   const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/workspace/all`, {
     headers: {
@@ -12,5 +12,5 @@ export const fetchUserWorkspaces = async () => {
     withCredentials: true,
   });
 
-  return response.data; // deve conter { workspaces: [...] }
+  return response.data; 
 };

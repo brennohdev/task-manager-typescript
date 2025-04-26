@@ -104,7 +104,7 @@ export const getTaskByIdResponseSchema = z.object({
     workspace: z.string(),
     status: TaskStatusEnumSchema,
     priority: TaskPriorityEnumSchema,
-    assignedTo: userPreviewSchema.nullable(), // Se pode ser nulo
+    assignedTo: userPreviewSchema.nullable(), 
     createdBy: z.string(),
     dueDate: z.string().nullable(),
     createdAt: z.string(),

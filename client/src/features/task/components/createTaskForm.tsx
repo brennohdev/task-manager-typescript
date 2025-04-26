@@ -63,7 +63,7 @@ export const CreateTaskForm = ({
 
   const onSubmit = (formValues: z.infer<typeof createTaskSchema>) => {
     const localDate = formValues.dueDate
-      ? new Date(formValues.dueDate + 'T12:00:00') // Aqui é o segredo
+      ? new Date(formValues.dueDate + 'T12:00:00') 
       : undefined;
 
     const adjustedValues = {
