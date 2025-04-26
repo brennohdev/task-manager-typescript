@@ -3,22 +3,14 @@
     "target": "ES2021",
     "module": "commonjs",
     "rootDir": "./src",
+    "outDir": "./dist",
     "typeRoots": ["./node_modules/@types", "./src/@types"],
-    "types": ["jest"], // Especificando que tipos do Jest são necessários
+    "types": ["node"], // apenas os tipos usados em produção
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
     "strict": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/@types",
-    "src/__tests__/**/*.ts" // Incluindo todos os testes do projeto
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.spec.ts" // Excluindo os arquivos '.spec.ts' do processo de compilação
-  ]
+  "include": ["src/**/*.ts", "src/@types"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "src/__tests__"]
 }
